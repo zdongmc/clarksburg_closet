@@ -1,0 +1,1354 @@
+<title>Request Queue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+
+<style>
+  :root {
+    --ground:      #F2F4F7;
+    --panel:       #FFFFFF;
+    --sunk:        #EDF0F4;
+    --ink:         #141B24;
+    --ink-soft:    #58636F;
+    --rule:        #DCE2E9;
+    --rule-strong: #B6C0CA;
+    --accent:      #00467F;
+    --accent-ink:  #FFFFFF;
+    --accent-soft: #E4EDF5;
+    --green:       #47701B;
+    --green-soft:  #E9F1DD;
+    --amber:       #8A5A10;
+    --amber-soft:  #F8EFDD;
+    --red:         #A33A2E;
+    --red-soft:    #F8E7E4;
+    color-scheme: light;
+
+    --display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+    --body:    'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+    --mono:    'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #11161C;
+      --panel:       #1A2027;
+      --sunk:        #161B21;
+      --ink:         #E8ECF1;
+      --ink-soft:    #98A4B0;
+      --rule:        #2A313A;
+      --rule-strong: #454F59;
+      --accent:      #94BBDE;
+      --accent-ink:  #0E141A;
+      --accent-soft: #212D39;
+      --green:       #A6C97B;
+      --green-soft:  #212B19;
+      --amber:       #DBA95E;
+      --amber-soft:  #2B2519;
+      --red:         #E2857A;
+      --red-soft:    #2E1D1A;
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #11161C;
+    --panel:       #1A2027;
+    --sunk:        #161B21;
+    --ink:         #E8ECF1;
+    --ink-soft:    #98A4B0;
+    --rule:        #2A313A;
+    --rule-strong: #454F59;
+    --accent:      #94BBDE;
+    --accent-ink:  #0E141A;
+    --accent-soft: #212D39;
+    --green:       #A6C97B;
+    --green-soft:  #212B19;
+    --amber:       #DBA95E;
+    --amber-soft:  #2B2519;
+    --red:         #E2857A;
+    --red-soft:    #2E1D1A;
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding-inline: 18px;
+    padding-block: 26px 72px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .notice {
+    background: var(--amber-soft);
+    border-left: 3px solid var(--amber);
+    padding: 11px 15px;
+    font-size: 0.87rem;
+  }
+
+  .notice strong { font-family: var(--display); }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .logo { width: 62px; height: 62px; flex: none; display: block; }
+
+  .mast-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 4.6vw, 2.1rem);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin: 0;
+  }
+
+  /* ---------- stat tiles ---------- */
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .stat {
+    background: var(--panel);
+    padding: 12px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .stat .k {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .stat .v {
+    font-family: var(--display);
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat.is-filled .v { color: var(--green); }
+  .stat.is-crisis-stat .v { color: var(--red); }
+
+  /* ---------- controls ---------- */
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .filter {
+    font-family: var(--display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: var(--panel);
+    color: var(--ink-soft);
+    border: 1px solid var(--rule-strong);
+    padding: 10px 15px;
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  .filter:hover { border-color: var(--accent); color: var(--ink); }
+
+  .filter[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+
+  .filter .n { font-family: var(--mono); opacity: 0.75; margin-left: 5px; }
+
+  .search {
+    flex: 1 1 15rem;
+    max-width: 22rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .search input {
+    font-family: var(--body);
+    font-size: 1rem;
+    min-height: 44px;
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--rule-strong);
+    padding: 8px 11px;
+    width: 100%;
+  }
+
+  .search .hint { font-size: 0.75rem; color: var(--ink-soft); }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* ---------- queue ---------- */
+
+  .queue { display: flex; flex-direction: column; gap: 10px; }
+
+  .req {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--rule-strong);
+  }
+
+  .req.s-new { border-left-color: var(--accent); }
+  .req.s-progress { border-left-color: var(--amber); }
+  .req.s-filled { border-left-color: var(--green); }
+  .req.s-declined { border-left-color: var(--red); }
+
+  /* Crisis is a volunteer's own designation, so it outlines the whole card
+     rather than taking the left edge, which already encodes status. */
+  .req.is-crisis { box-shadow: inset 0 0 0 2px var(--red); }
+
+  .req-main {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px 18px;
+    padding: 14px 16px;
+    align-items: start;
+  }
+
+  .req-who { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+  .req-name {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .req-org { font-size: 0.92rem; color: var(--ink-soft); }
+  .req-org em { font-style: italic; }
+
+  .req-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 16px;
+    font-family: var(--mono);
+    font-size: 0.92rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .req-contact a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule-strong);
+    overflow-wrap: anywhere;
+  }
+
+  .req-contact a:hover { color: var(--accent); border-color: var(--accent); }
+
+  .req-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .req-facts .id { font-family: var(--mono); color: var(--ink); }
+
+  .req-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .pill {
+    font-family: var(--display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+
+  .pill.new { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .pill.progress { background: var(--amber-soft); color: var(--amber); border-color: var(--amber); }
+  .pill.filled { background: var(--green-soft); color: var(--green); border-color: var(--green); }
+  .pill.declined { background: var(--red-soft); color: var(--red); border-color: var(--red); }
+  .pill.crisis { background: var(--red); color: var(--panel); border-color: var(--red); }
+
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .acts { display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .crisis-check {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--display);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .crisis-check { padding: 8px 0; min-height: 44px; }
+  .crisis-check input { width: 1.5rem; height: 1.5rem; accent-color: var(--red); cursor: pointer; }
+  .crisis-check:hover { color: var(--red); }
+  .crisis-check.on { color: var(--red); }
+
+  /* Touch sizing throughout: this runs on an iPad, so every control clears a
+     44px target and no field is small enough to trigger iOS focus zoom. */
+  .btn {
+    font-family: var(--display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: 1px solid var(--accent);
+    padding: 11px 16px;
+    min-height: 44px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .btn.ghost { background: none; color: var(--accent); }
+  .btn.ghost:hover { background: var(--accent-soft); }
+
+  .btn.done { background: var(--green); border-color: var(--green); color: var(--accent-ink); }
+  .btn.done:hover { filter: brightness(1.08); }
+
+  .btn.quiet {
+    background: none;
+    color: var(--ink-soft);
+    border-color: var(--rule-strong);
+  }
+
+  .btn.quiet:hover { color: var(--ink); border-color: var(--ink-soft); }
+
+  .btn.danger { background: none; color: var(--red); border-color: var(--red); }
+  .btn.danger:hover { background: var(--red-soft); }
+
+  /* Declining asks for a reason inline rather than in a modal -- it is a
+     decision the requester will be told about, so it should not be one click. */
+  .decline-panel {
+    border-top: 1px solid var(--rule);
+    background: var(--red-soft);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .decline-panel .cap {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+
+  .decline-panel select,
+  .decline-panel input {
+    font-family: var(--body);
+    font-size: 1rem;
+    min-height: 44px;
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--rule-strong);
+    padding: 8px 10px;
+    width: 100%;
+  }
+
+  .decline-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 10px;
+  }
+
+  .decline-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .reason-line { font-size: 0.85rem; color: var(--red); }
+
+  /* ---------- expanded recipients ---------- */
+
+  .req-detail {
+    border-top: 1px solid var(--rule);
+    padding: 12px 16px 15px;
+    background: var(--sunk);
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .detail-cap {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .rlist { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+
+  .rrow {
+    background: var(--panel);
+    padding: 8px 12px;
+    display: grid;
+    grid-template-columns: minmax(8rem, 1.2fr) repeat(auto-fit, minmax(6rem, 1fr));
+    gap: 4px 14px;
+    align-items: baseline;
+  }
+
+  .rrow .who { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+  .rrow .rn { font-family: var(--display); font-weight: 700; font-size: 0.95rem; }
+  .rrow .ra { font-size: 0.8rem; color: var(--ink-soft); }
+
+  .sz { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+  .sz .k {
+    font-family: var(--display);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .sz .v { font-family: var(--mono); font-size: 0.95rem; font-weight: 500; overflow-wrap: anywhere; }
+  .sz .v.none { font-family: var(--body); font-style: italic; color: var(--ink-soft); font-size: 0.85rem; }
+
+  .rflag {
+    grid-column: 1 / -1;
+    font-size: 0.82rem;
+    color: var(--amber);
+    background: var(--amber-soft);
+    border-left: 2px solid var(--amber);
+    padding: 4px 9px;
+  }
+
+  .prayer-line {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+
+  .empty {
+    background: var(--panel);
+    border: 1px dashed var(--rule-strong);
+    padding: 28px 20px;
+    text-align: center;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- toast ---------- */
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--ground);
+    padding: 11px 18px;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: calc(100% - 32px);
+    z-index: 20;
+  }
+
+  .toast button {
+    font-family: var(--display);
+    font-size: 0.9rem;
+    padding: 6px 2px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    border-bottom: 1px solid currentColor;
+    color: inherit;
+    cursor: pointer;
+    padding: 0 0 1px;
+  }
+
+  /* iPad portrait is 768px: give the actions their own full-width row well
+     before that, so buttons never compress into a narrow right-hand column. */
+  @media (max-width: 900px) {
+    .req-main { grid-template-columns: 1fr; }
+    .req-side { align-items: stretch; }
+    .pills { justify-content: flex-start; }
+    .acts { justify-content: flex-start; }
+    .acts .btn { flex: 1 1 auto; }
+    .crisis-check { justify-content: flex-start; }
+  }
+
+  @media (max-width: 620px) {
+    .req-main { grid-template-columns: 1fr; }
+    .req-side { align-items: flex-start; }
+    .acts, .pills { justify-content: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="app">
+
+  <div class="notice">
+    <strong>Mockup for discussion.</strong> Sample requests, and changes are not saved &mdash; reload and everything comes back. In the real app this queue would read from the database and marking a request filled would stick.
+  </div>
+
+  <header class="masthead">
+    <img class="logo" alt="Clarksburg Closet" src="data:image/png;base64,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">
+    <div class="mast-text">
+      <div class="eyebrow">Volunteer view</div>
+      <h1>Request Queue</h1>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="controls">
+    <div class="filters" id="filters"></div>
+    <div class="search">
+      <input type="search" id="q" placeholder="Search name, agency, phone or email…" aria-label="Search requests">
+      <span class="hint">Also finds a request by its number.</span>
+    </div>
+  </div>
+
+  <div class="queue" id="queue"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var TODAY = new Date('2026-09-10T12:00:00');
+
+  // ---------------------------------------------------------------------
+  // Sample queue. Sizes follow the vocabulary agreed for the request form:
+  // youth 0-3M to 16/18, adult letters, men's pants waist x inseam,
+  // women's even / juniors odd, US shoes with halves, diapers to size 8.
+  // ---------------------------------------------------------------------
+
+  var REQUESTS = [
+    {
+      id: '2026-0413', name: 'Maria Delgado', org: 'Montgomery County Crisis Center',
+      phone: '(301) 555-0142', email: 'mdelgado@mccrisis.org',
+      received: '2026-09-10', status: 'new',
+      prayer: 'For steady work and a warm winter for the children.',
+      people: [
+        { n: 'Aaliyah Carter', a: 'Girl · 9 yr', shirt: '10 · Girls’', pant: '10 · Girls’', shoe: '3Y · 3½Y', dia: null },
+        { n: 'Marcus Carter', a: 'Boy · 14 yr', shirt: '16 · Boys’', pant: '30 × 30 · Men’s', shoe: '8 · 8½', dia: null },
+        { n: 'Nia Carter', a: 'Girl · 12 yr', shirt: 'S · Women’s', pant: '7 · Juniors', shoe: '6 · 6½', dia: null,
+          flag: 'Adult sizes for a 12-year-old — pick age-appropriate styles.' },
+        { n: 'Jordan Carter', a: 'Boy · 8 mo', shirt: '6–9M', pant: '6–9M', shoe: null, dia: 'Size 3' },
+        { n: 'Yolanda Carter', a: 'Woman · 38 yr', shirt: 'L · Women’s', pant: '12 · Women’s', shoe: '8 · 8½', dia: null }
+      ]
+    },
+    {
+      id: '2026-0412', name: 'James Okonkwo', org: 'Rocky Hill Middle School',
+      phone: '(240) 555-0188', email: 'j.okonkwo@mcpsmd.org',
+      received: '2026-09-09', status: 'new', prayer: '',
+      people: [
+        { n: 'Devon Price', a: 'Boy · 13 yr', shirt: '18 · Boys’', pant: '32 × 30 · Men’s', shoe: '9', dia: null },
+        { n: 'Kayla Price', a: 'Girl · 11 yr', shirt: '12 · Girls’', pant: '12 · Girls’', shoe: '4Y', dia: null }
+      ]
+    },
+    {
+      id: '2026-0409', name: 'Tanya Brooks', org: null,
+      phone: '(301) 555-0119', email: 'tbrooks88@gmail.com',
+      received: '2026-09-05', status: 'progress', printedOn: '2026-09-08', crisis: true,
+      prayer: 'Please pray for my mother’s health.',
+      people: [
+        { n: 'Tanya Brooks', a: 'Woman · 29 yr', shirt: 'M · Women’s', pant: '8 · Women’s', shoe: '7½', dia: null },
+        { n: 'Isaiah Brooks', a: 'Boy · 4 yr', shirt: '4T', pant: '4T', shoe: '10C · 10½C', dia: null },
+        { n: 'Amara Brooks', a: 'Girl · 18 mo', shirt: '18–24M', pant: '18–24M', shoe: '6C', dia: 'Size 5' }
+      ]
+    },
+    {
+      id: '2026-0405', name: 'Elena Ruiz', org: 'Interfaith Works',
+      phone: '(240) 555-0203', email: 'eruiz@interfaithworks.org',
+      received: '2026-08-30', status: 'progress', printedOn: '2026-09-02', prayer: '',
+      people: [
+        { n: 'Sofia Marín', a: 'Girl · 6 yr', shirt: '6 · Girls’', pant: '6 · Girls’', shoe: '12C', dia: null },
+        { n: 'Mateo Marín', a: 'Boy · 3 yr', shirt: '3T', pant: '3T', shoe: '9C', dia: null },
+        { n: 'Lucía Marín', a: 'Girl · 5 mo', shirt: '3–6M', pant: '3–6M', shoe: null, dia: 'Size 2' },
+        { n: 'Rosa Marín', a: 'Woman · 41 yr', shirt: 'XL · Women’s', pant: '16 · Women’s', shoe: '9', dia: null }
+      ]
+    },
+    {
+      id: '2026-0398', name: 'Priya Raman', org: 'Manna Food Center',
+      phone: '(301) 555-0177', email: 'praman@mannafood.org',
+      received: '2026-08-08', status: 'new', prayer: '',
+      people: [
+        { n: 'Amir Haddad', a: 'Boy · 16 yr', shirt: 'M · Men’s', pant: '32 × 32 · Men’s', shoe: '10 · 10½', dia: null },
+        { n: 'Layla Haddad', a: 'Girl · 14 yr', shirt: '16 · Girls’', pant: '9 · Juniors', shoe: '7', dia: null },
+        { n: 'Sami Haddad', a: 'Boy · 10 yr', shirt: '10 · Boys’', pant: '10 · Boys’', shoe: '2Y', dia: null },
+        { n: 'Nour Haddad', a: 'Girl · 7 yr', shirt: '8 · Girls’', pant: '8 · Girls’', shoe: '13C', dia: null },
+        { n: 'Zaid Haddad', a: 'Boy · 2 yr', shirt: '2T', pant: '2T', shoe: '7C', dia: 'Size 6' },
+        { n: 'Hana Haddad', a: 'Woman · 36 yr', shirt: 'M · Women’s', pant: '10 · Women’s', shoe: '8', dia: null }
+      ]
+    },
+    {
+      id: '2026-0396', name: 'Dawn Whitfield', org: 'Clarksburg Elementary School',
+      phone: '(240) 555-0166', email: 'dwhitfield@mcpsmd.org',
+      received: '2026-08-05', status: 'filled', filledOn: '2026-08-20', prayer: '',
+      people: [
+        { n: 'Trevor Nash', a: 'Boy · 8 yr', shirt: '8 · Boys’', pant: '8 · Boys’', shoe: '1Y', dia: null }
+      ]
+    },
+    {
+      id: '2026-0391', name: 'Carlos Mendez', org: 'Montgomery County Crisis Center',
+      phone: '(301) 555-0155', email: 'cmendez@mccrisis.org',
+      received: '2026-07-28', status: 'filled', filledOn: '2026-08-12', prayer: '',
+      people: [
+        { n: 'Julio Mendez', a: 'Man · 52 yr', shirt: 'L · Men’s', pant: '36 × 30 · Men’s', shoe: '11', dia: null },
+        { n: 'Alma Mendez', a: 'Woman · 49 yr', shirt: 'L · Women’s', pant: '14 · Women’s', shoe: '8½', dia: null }
+      ]
+    }
+  ];
+
+  var state = { filter: 'open', q: '', open: {}, declining: {} };
+
+  // ---------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function parseDay(s) { return new Date(s + 'T12:00:00'); }
+
+  function daysSince(s) {
+    return Math.round((TODAY - parseDay(s)) / 86400000);
+  }
+
+  function fmt(s) {
+    var d = parseDay(s);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function waitText(r) {
+    var d = daysSince(r.received);
+    if (d === 0) return 'today';
+    if (d === 1) return '1 day ago';
+    return d + ' days ago';
+  }
+
+  // A request leaves the queue when it is filled or declined.
+  function isOpen(r) { return r.status !== 'filled' && r.status !== 'declined'; }
+
+  function matches(r, q) {
+    if (!q) return true;
+    var hay = [r.id, r.name, r.org || '', r.phone, r.email,
+               r.people.map(function (p) { return p.n; }).join(' ')].join(' ').toLowerCase();
+    return hay.indexOf(q.toLowerCase()) !== -1;
+  }
+
+  function inFilter(r, f) {
+    if (f === 'all') return true;
+    if (f === 'open') return isOpen(r);
+    if (f === 'crisis') return !!r.crisis && isOpen(r);
+    return r.status === f;
+  }
+
+  // ---------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------
+
+  var queueEl = document.getElementById('queue');
+  var statsEl = document.getElementById('stats');
+  var filtersEl = document.getElementById('filters');
+  var qEl = document.getElementById('q');
+
+  var STATUS_LABEL = {
+    'new': 'Not started', 'progress': 'Printed', 'filled': 'Filled', 'declined': 'Declined'
+  };
+
+  var DECLINE_REASONS = [
+    'Already received clothing this season',
+    'Duplicate of another request',
+    'Outside the area we serve',
+    'Could not reach the requester',
+    'We do not have these items',
+    'Other'
+  ];
+
+  var FILTERS = [
+    { key: 'open',     label: 'To do' },
+    { key: 'crisis',   label: 'Crisis' },
+    { key: 'new',      label: 'Not started' },
+    { key: 'progress', label: 'Printed' },
+    { key: 'filled',   label: 'Filled' },
+    { key: 'declined', label: 'Declined' },
+    { key: 'all',      label: 'All' }
+  ];
+
+  function counts() {
+    var c = { all: REQUESTS.length, open: 0, new: 0, progress: 0, filled: 0, declined: 0, crisis: 0, people: 0 };
+    REQUESTS.forEach(function (r) {
+      c[r.status] += 1;
+      if (isOpen(r)) { c.open += 1; c.people += r.people.length; }
+      if (r.crisis && isOpen(r)) c.crisis += 1;
+    });
+    return c;
+  }
+
+  function renderStats() {
+    var c = counts();
+    statsEl.innerHTML = '';
+    [
+      { k: 'Waiting', v: c.open, cls: '' },
+      { k: 'Crisis', v: c.crisis, cls: 'is-crisis-stat' },
+      { k: 'People to clothe', v: c.people, cls: '' },
+      { k: 'Filled', v: c.filled, cls: 'is-filled' }
+    ].forEach(function (s) {
+      var d = el('div', 'stat ' + s.cls);
+      d.appendChild(el('span', 'k', s.k));
+      d.appendChild(el('span', 'v', String(s.v)));
+      statsEl.appendChild(d);
+    });
+  }
+
+  function renderFilters() {
+    var c = counts();
+    filtersEl.innerHTML = '';
+    FILTERS.forEach(function (f) {
+      var b = el('button', 'filter');
+      b.type = 'button';
+      b.setAttribute('aria-pressed', state.filter === f.key);
+      b.appendChild(document.createTextNode(f.label));
+      var n = el('span', 'n', String(c[f.key]));
+      b.appendChild(n);
+      b.addEventListener('click', function () {
+        state.filter = f.key;
+        render();
+      });
+      filtersEl.appendChild(b);
+    });
+  }
+
+  function sizeCell(k, v) {
+    var d = el('div', 'sz');
+    d.appendChild(el('span', 'k', k));
+    if (v) d.appendChild(el('span', 'v', v));
+    else d.appendChild(el('span', 'v none', 'Not needed'));
+    return d;
+  }
+
+  function renderDetail(r) {
+    var wrap = el('div', 'req-detail');
+    wrap.appendChild(el('div', 'detail-cap', r.people.length + (r.people.length === 1 ? ' recipient' : ' recipients')));
+
+    var list = el('div', 'rlist');
+    r.people.forEach(function (p) {
+      var row = el('div', 'rrow');
+      var who = el('div', 'who');
+      who.appendChild(el('span', 'rn', p.n));
+      who.appendChild(el('span', 'ra', p.a));
+      row.appendChild(who);
+      row.appendChild(sizeCell('Shirt', p.shirt));
+      row.appendChild(sizeCell('Pants', p.pant));
+      row.appendChild(sizeCell('Shoes', p.shoe));
+      row.appendChild(sizeCell('Diapers', p.dia));
+      if (p.flag) row.appendChild(el('div', 'rflag', p.flag));
+      list.appendChild(row);
+    });
+    wrap.appendChild(list);
+
+    if (r.prayer) wrap.appendChild(el('div', 'prayer-line', '“' + r.prayer + '”'));
+    return wrap;
+  }
+
+  function renderRequest(r) {
+    var box = el('article', 'req s-' + r.status + (r.crisis ? ' is-crisis' : ''));
+
+    var main = el('div', 'req-main');
+
+    var who = el('div', 'req-who');
+    who.appendChild(el('h2', 'req-name', r.name));
+    var org = el('div', 'req-org');
+    if (r.org) org.textContent = r.org;
+    else org.innerHTML = '<em>Requesting for their own household</em>';
+    who.appendChild(org);
+
+    // Phone and email sit on the row itself: chasing a missing size or a
+    // pickup time is the commonest reason a volunteer opens a request at all.
+    var contact = el('div', 'req-contact');
+    var tel = el('a', null, r.phone);
+    tel.href = 'tel:' + r.phone.replace(/[^0-9+]/g, '');
+    contact.appendChild(tel);
+    var mail = el('a', null, r.email);
+    mail.href = 'mailto:' + r.email;
+    contact.appendChild(mail);
+    who.appendChild(contact);
+
+    var facts = el('div', 'req-facts');
+    facts.appendChild(el('span', 'id', '#' + r.id));
+    facts.appendChild(el('span', null, r.people.length + (r.people.length === 1 ? ' recipient' : ' recipients')));
+    facts.appendChild(el('span', null, 'Received ' + fmt(r.received) + ' · ' + waitText(r)));
+    if (r.status === 'filled' && r.filledOn) facts.appendChild(el('span', null, 'Filled ' + fmt(r.filledOn)));
+    if (r.status === 'declined' && r.declinedOn) facts.appendChild(el('span', null, 'Declined ' + fmt(r.declinedOn)));
+    if (r.status === 'progress' && r.printedOn) facts.appendChild(el('span', null, 'Printed ' + fmt(r.printedOn)));
+    who.appendChild(facts);
+    main.appendChild(who);
+
+    var side = el('div', 'req-side');
+    var pills = el('div', 'pills');
+    if (r.crisis) pills.appendChild(el('span', 'pill crisis', 'Crisis'));
+    pills.appendChild(el('span', 'pill ' + r.status, STATUS_LABEL[r.status]));
+    side.appendChild(pills);
+
+    var crisisLabel = el('label', 'crisis-check' + (r.crisis ? ' on' : ''));
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = !!r.crisis;
+    cb.id = 'crisis-' + r.id;
+    cb.addEventListener('change', function () { setCrisis(r, cb.checked); });
+    crisisLabel.appendChild(cb);
+    crisisLabel.appendChild(document.createTextNode('Crisis'));
+    side.appendChild(crisisLabel);
+
+    var acts = el('div', 'acts');
+
+    var toggle = el('button', 'btn quiet', state.open[r.id] ? 'Hide sizes' : 'View sizes');
+    toggle.type = 'button';
+    toggle.addEventListener('click', function () {
+      state.open[r.id] = !state.open[r.id];
+      render();
+    });
+    acts.appendChild(toggle);
+
+    if (isOpen(r)) {
+      // Once a sheet has been generated the action is a re-open, not a first print.
+      var pr = el('button', 'btn ghost', r.status === 'progress' ? 'Open PDF again' : 'Print pick sheet');
+      pr.type = 'button';
+      pr.addEventListener('click', function () { doPrint(r); });
+      acts.appendChild(pr);
+
+      var fill = el('button', 'btn done', 'Mark filled');
+      fill.type = 'button';
+      fill.addEventListener('click', function () { markFilled(r); });
+      acts.appendChild(fill);
+
+      var dec = el('button', 'btn danger', 'Decline');
+      dec.type = 'button';
+      dec.addEventListener('click', function () {
+        state.declining[r.id] = !state.declining[r.id];
+        render();
+      });
+      acts.appendChild(dec);
+    } else {
+      var re = el('button', 'btn quiet', 'Reopen');
+      re.type = 'button';
+      re.addEventListener('click', function () { reopen(r); });
+      acts.appendChild(re);
+    }
+
+    side.appendChild(acts);
+    main.appendChild(side);
+    box.appendChild(main);
+
+    if (r.status === 'declined' && r.reason) {
+      var rl = el('div', 'decline-panel');
+      rl.appendChild(el('span', 'cap', 'Reason given'));
+      rl.appendChild(el('div', 'reason-line', r.reason + (r.reasonNote ? ' — ' + r.reasonNote : '')));
+      box.appendChild(rl);
+    }
+
+    if (state.declining[r.id]) box.appendChild(renderDeclinePanel(r));
+    if (state.open[r.id]) box.appendChild(renderDetail(r));
+    return box;
+  }
+
+  function renderDeclinePanel(r) {
+    var p = el('div', 'decline-panel');
+    p.appendChild(el('span', 'cap', 'Decline this request'));
+
+    var fields = el('div', 'decline-fields');
+
+    var sel = document.createElement('select');
+    sel.id = 'reason-' + r.id;
+    sel.setAttribute('aria-label', 'Reason for declining');
+    sel.appendChild(new Option('Choose a reason…', ''));
+    DECLINE_REASONS.forEach(function (x) { sel.appendChild(new Option(x, x)); });
+    fields.appendChild(sel);
+
+    var note = document.createElement('input');
+    note.type = 'text';
+    note.id = 'note-' + r.id;
+    note.placeholder = 'Note for the record (optional)';
+    note.setAttribute('aria-label', 'Note about the decline');
+    fields.appendChild(note);
+
+    p.appendChild(fields);
+
+    var acts = el('div', 'decline-actions');
+    var go = el('button', 'btn danger', 'Confirm decline');
+    go.type = 'button';
+    go.addEventListener('click', function () {
+      if (!sel.value) { sel.focus(); return; }
+      decline(r, sel.value, note.value.trim());
+    });
+    var cancel = el('button', 'btn quiet', 'Cancel');
+    cancel.type = 'button';
+    cancel.addEventListener('click', function () {
+      state.declining[r.id] = false;
+      render();
+    });
+    acts.appendChild(go);
+    acts.appendChild(cancel);
+    p.appendChild(acts);
+    return p;
+  }
+
+  function render() {
+    renderStats();
+    renderFilters();
+
+    var list = REQUESTS.filter(function (r) {
+      return inFilter(r, state.filter) && matches(r, state.q);
+    }).sort(function (a, b) {
+      // Oldest waiting first -- the queue is worked front to back.
+      if (isOpen(a) !== isOpen(b)) return isOpen(a) ? -1 : 1;
+      // Crisis requests rise to the top of the open work, then oldest first.
+      if (isOpen(a) && !!a.crisis !== !!b.crisis) return a.crisis ? -1 : 1;
+      return parseDay(a.received) - parseDay(b.received);
+    });
+
+    queueEl.innerHTML = '';
+    if (!list.length) {
+      queueEl.appendChild(el('div', 'empty', 'No requests match. Try another filter or clear the search.'));
+      return;
+    }
+    list.forEach(function (r) { queueEl.appendChild(renderRequest(r)); });
+  }
+
+  // ---------------------------------------------------------------------
+  // Actions
+  // ---------------------------------------------------------------------
+
+
+  // -------------------------------------------------------------------------
+  // Pick sheet PDF. Drawn at fixed coordinates rather than printed from CSS:
+  // the browser's own pagination kept splitting slips across pages, and here
+  // the page a slip lands on is arithmetic. Letter, 0.5in margins, 4 slips on
+  // page one beneath the request header, 6 on every page after.
+  // -------------------------------------------------------------------------
+
+  var PT = { W: 612, H: 792, M: 36 };
+  var COL_GAP = 12, ROW_GAP = 12;
+  var CONTENT_W = PT.W - PT.M * 2;               // 540
+  var SLIP_W = (CONTENT_W - COL_GAP) / 2;        // 264
+  var SLIP_H = 230;
+  var HEAD_H = PT.H - PT.M * 2 - (SLIP_H * 2) - (ROW_GAP * 2) - ROW_GAP; // room for 2 rows
+
+  function logoData() {
+    var img = document.querySelector('.masthead .logo');
+    return img ? img.src : null;
+  }
+
+  function drawHeader(doc, r, y) {
+    var x = PT.M, w = CONTENT_W, h = HEAD_H;
+    doc.setLineWidth(1.5); doc.setDrawColor(0);
+    doc.rect(x, y, w, h);
+
+    var pad = 12, cy = y + pad;
+
+    var logo = logoData();
+    if (logo) { try { doc.addImage(logo, 'PNG', x + pad, cy, 40, 40); } catch (e) {} }
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+    doc.text('CLOTHING REQUEST', x + pad + 50, cy + 14);
+    doc.setFont('courier', 'bold'); doc.setFontSize(9);
+    doc.text('REQUEST #' + r.id, x + w - pad, cy + 14, { align: 'right' });
+
+    if (r.crisis) {
+      var bw = 62, bh = 16, bx = x + w - pad - bw, by = cy + 22;
+      doc.setFillColor(0); doc.rect(bx, by, bw, bh, 'F');
+      doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+      doc.text('CRISIS', bx + bw / 2, by + 11.5, { align: 'center' });
+      doc.setTextColor(0);
+    }
+
+    cy += 48;
+    doc.setLineWidth(0.5); doc.line(x + pad, cy, x + w - pad, cy);
+
+    cy += 16;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7);
+    doc.text('REQUESTED BY', x + pad, cy);
+    cy += 20;
+    doc.setFontSize(22);
+    doc.text(r.name, x + pad, cy);
+    cy += 16;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(12);
+    doc.text(r.org || 'Requesting for their own household', x + pad, cy);
+
+    // One strip: contact and counts together.
+    cy += 12;
+    var sh = 30, sx = x + pad, sw = w - pad * 2;
+    doc.setLineWidth(0.5); doc.rect(sx, cy, sw, sh);
+    var cells = [
+      ['PHONE', r.phone], ['EMAIL', r.email],
+      ['RECEIVED', fmt(r.received)], ['RECIPIENTS', String(r.people.length)]
+    ];
+    var cw = sw / cells.length;
+    cells.forEach(function (c, i) {
+      var cx = sx + cw * i;
+      if (i) doc.line(cx, cy, cx, cy + sh);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(6);
+      doc.text(c[0], cx + 6, cy + 11);
+      doc.setFont('courier', 'bold'); doc.setFontSize(8.5);
+      doc.text(doc.splitTextToSize(c[1], cw - 12)[0], cx + 6, cy + 23);
+    });
+
+    if (r.prayer) {
+      cy += sh + 10;
+      doc.setLineWidth(2); doc.line(x + pad, cy - 2, x + pad, cy + 12);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(6);
+      doc.text('PRAYER REQUEST', x + pad + 6, cy + 3);
+      doc.setFont('helvetica', 'italic'); doc.setFontSize(8.5);
+      doc.text(doc.splitTextToSize('“' + r.prayer + '”', w - pad * 2 - 12)[0], x + pad + 6, cy + 13);
+    }
+  }
+
+  function drawSlip(doc, r, person, index, total, x, y) {
+    var w = SLIP_W, h = SLIP_H, pad = 9;
+    doc.setLineWidth(0.8); doc.setDrawColor(0);
+    doc.rect(x, y, w, h);
+
+    // Traceability strip: who asked, and which slip of how many.
+    var cy = y + 14;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
+    doc.text(doc.splitTextToSize(r.name, w - pad * 2 - 52)[0], x + pad, cy);
+    doc.setFont('courier', 'normal'); doc.setFontSize(7.5);
+    doc.text(index + ' of ' + total, x + w - pad, cy, { align: 'right' });
+    cy += 11;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+    doc.text(doc.splitTextToSize(r.org || 'Own household', w - pad * 2 - 40)[0], x + pad, cy);
+    doc.setFont('courier', 'normal'); doc.setFontSize(6.5);
+    doc.text('#' + r.id, x + w - pad, cy, { align: 'right' });
+
+    if (r.crisis) {
+      cy += 12;
+      var bw = 44, bh = 12;
+      doc.setFillColor(0); doc.rect(x + pad, cy - 9, bw, bh, 'F');
+      doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.setFontSize(7);
+      doc.text('CRISIS', x + pad + bw / 2, cy - 0.5, { align: 'center' });
+      doc.setTextColor(0);
+      cy -= 2;
+    }
+
+    cy += 8;
+    doc.setLineWidth(1.2); doc.line(x, cy, x + w, cy);
+
+    cy += 18;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+    doc.text(doc.splitTextToSize(person.n, w - pad * 2)[0], x + pad, cy);
+    cy += 12;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
+    doc.text(person.a, x + pad, cy);
+
+    // 2x2 size grid.
+    cy += 8;
+    var gx = x + pad, gw = w - pad * 2, cw = gw / 2, ch = 38;
+    doc.setLineWidth(0.5);
+    doc.rect(gx, cy, gw, ch * 2);
+    doc.line(gx + cw, cy, gx + cw, cy + ch * 2);
+    doc.line(gx, cy + ch, gx + gw, cy + ch);
+
+    var vals = [
+      ['SHIRT', person.shirt], ['PANTS', person.pant],
+      ['SHOES', person.shoe], ['DIAPERS', person.dia]
+    ];
+    vals.forEach(function (v, i) {
+      var cx = gx + (i % 2) * cw, cyy = cy + Math.floor(i / 2) * ch;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(6);
+      doc.text(v[0], cx + 5, cyy + 10);
+      if (v[1]) {
+        var parts = String(v[1]).split(' · ');
+        var main = parts[0], sub = parts[1] || '';
+        doc.setFont('courier', 'bold'); doc.setFontSize(12);
+        doc.text(doc.splitTextToSize(main, cw - 10)[0], cx + 5, cyy + 24);
+        if (sub) {
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(6);
+          doc.text(doc.splitTextToSize(sub, cw - 10)[0], cx + 5, cyy + 33);
+        }
+      } else {
+        doc.setFont('helvetica', 'italic'); doc.setFontSize(8);
+        doc.text('Not needed', cx + 5, cyy + 24);
+      }
+    });
+
+    cy += ch * 2 + 12;
+
+    if (person.flag) {
+      doc.setLineWidth(2); doc.line(x + pad, cy - 8, x + pad, cy + 4);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+      var fl = doc.splitTextToSize(person.flag, w - pad * 2 - 8);
+      doc.text(fl[0], x + pad + 6, cy);
+      if (fl[1]) { doc.text(fl[1], x + pad + 6, cy + 9); cy += 9; }
+      cy += 14;
+    }
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(6);
+    doc.text('ITEMS NEEDED MOST', x + pad, cy);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+    var notes = doc.splitTextToSize(person.notes || '—', w - pad * 2);
+    var maxLines = Math.max(1, Math.floor((y + h - (cy + 10)) / 10));
+    notes.slice(0, maxLines).forEach(function (ln, i) {
+      doc.text(ln, x + pad, cy + 10 + i * 10);
+    });
+  }
+
+  function buildPdf(r) {
+    var doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'letter' });
+    var total = r.people.length;
+    var i = 0, page = 0;
+
+    while (i < total) {
+      if (page > 0) doc.addPage();
+      var top = PT.M;
+      var rowsThisPage;
+      if (page === 0) {
+        drawHeader(doc, r, top);
+        top += HEAD_H + ROW_GAP;
+        rowsThisPage = 2;                 // 4 slips beside the header
+      } else {
+        rowsThisPage = 3;                 // 6 slips on a full page
+      }
+      for (var row = 0; row < rowsThisPage && i < total; row++) {
+        for (var col = 0; col < 2 && i < total; col++) {
+          drawSlip(doc, r, r.people[i], i + 1, total,
+                   PT.M + col * (SLIP_W + COL_GAP),
+                   top + row * (SLIP_H + ROW_GAP));
+          i++;
+        }
+      }
+      page++;
+    }
+    return doc;
+  }
+
+  window.__buildPdf = buildPdf;
+
+  function todayStr() { return TODAY.toISOString().slice(0, 10); }
+
+  // iPadOS reports itself as a Mac, so touch points are the reliable tell.
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  function doPrint(r) {
+    var wasPrinted = r.status === 'progress';
+    var doc;
+    try {
+      doc = buildPdf(r);
+    } catch (e) {
+      toast('Could not build the pick sheet PDF: ' + e.message);
+      return;
+    }
+
+    var name = 'pick-sheet-' + r.id + (r.crisis ? '-CRISIS' : '') + '.pdf';
+
+    function markPrinted() {
+      if (r.status === 'new') {
+        r.status = 'progress';
+        r.printedOn = todayStr();
+      }
+      render();
+    }
+
+    // On an iPad, hand the PDF to the share sheet: that is where AirPrint
+    // lives, and Safari will not reliably open a blob: URL in a new tab.
+    if (isIOS() && navigator.canShare) {
+      try {
+        var file = new File([doc.output('blob')], name, { type: 'application/pdf' });
+        if (navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file], title: 'Pick sheet — ' + r.name })
+            .then(function () {
+              markPrinted();
+              toast('Pick sheet sent to the share sheet — choose Print.');
+            })
+            .catch(function () { /* the volunteer cancelled; nothing to report */ });
+          return;
+        }
+      } catch (e) { /* fall through to the tab, then the file */ }
+    }
+
+    // Desktop: open it in a tab so it can be read and printed from there.
+    // Not from file:// though -- a blob URL inherits that page's null origin
+    // and Chrome refuses to navigate to it (ERR_BLOCKED_BY_CLIENT). Served
+    // over http, which is how the real app will run, the tab opens fine.
+    var opened = null;
+    if (location.protocol !== 'file:') {
+      try {
+        opened = window.open(doc.output('bloburl'), '_blank');
+      } catch (e) {
+        opened = null;
+      }
+    }
+
+    if (opened) {
+      markPrinted();
+      toast(wasPrinted
+        ? 'Pick sheet for ' + r.name + ' reopened in a new tab.'
+        : 'Pick sheet for ' + r.name + ' opened in a new tab — print it from there.');
+      return;
+    }
+
+    // Blocked tab, a file:// page, or a sandbox that forbids one: save it
+    // rather than lose it.
+    try {
+      doc.save(name);
+      markPrinted();
+      toast(location.protocol === 'file:'
+        ? name + ' saved. Opening in a tab needs the page served over http, not opened from disk.'
+        : 'New tab was blocked, so ' + name + ' was saved instead.');
+    } catch (e2) {
+      toast('This frame blocks new tabs and downloads — open the page directly to get the PDF.');
+    }
+  }
+
+  function markFilled(r) {
+    var prev = { status: r.status, filledOn: r.filledOn };
+    r.status = 'filled';
+    r.filledOn = todayStr();
+    render();
+    toast(r.name + '’s request marked filled.', 'Undo', function () {
+      r.status = prev.status;
+      r.filledOn = prev.filledOn;
+      render();
+    });
+  }
+
+  function setCrisis(r, on) {
+    r.crisis = on;
+    render();
+    toast(on
+      ? r.name + '’s request marked crisis — moved to the top of the queue.'
+      : 'Crisis flag removed from ' + r.name + '’s request.');
+  }
+
+  function decline(r, reason, note) {
+    var prev = { status: r.status, reason: r.reason, reasonNote: r.reasonNote, declinedOn: r.declinedOn };
+    r.status = 'declined';
+    r.reason = reason;
+    r.reasonNote = note || '';
+    r.declinedOn = todayStr();
+    state.declining[r.id] = false;
+    render();
+    toast(r.name + '’s request declined — ' + reason.toLowerCase() + '.', 'Undo', function () {
+      r.status = prev.status;
+      r.reason = prev.reason;
+      r.reasonNote = prev.reasonNote;
+      r.declinedOn = prev.declinedOn;
+      render();
+    });
+  }
+
+  function reopen(r) {
+    r.status = r.printedOn ? 'progress' : 'new';
+    r.filledOn = null;
+    r.declinedOn = null;
+    r.reason = null;
+    r.reasonNote = '';
+    render();
+    toast(r.name + '’s request reopened.');
+  }
+
+  // ---------------------------------------------------------------------
+  // Toast
+  // ---------------------------------------------------------------------
+
+  var toastEl = null, toastTimer = null;
+
+  function toast(msg, actionLabel, action) {
+    if (toastEl) toastEl.remove();
+    clearTimeout(toastTimer);
+    toastEl = el('div', 'toast');
+    toastEl.setAttribute('role', 'status');
+    toastEl.appendChild(el('span', null, msg));
+    if (actionLabel) {
+      var b = el('button', null, actionLabel);
+      b.type = 'button';
+      b.addEventListener('click', function () {
+        action();
+        toastEl.remove();
+        toastEl = null;
+      });
+      toastEl.appendChild(b);
+    }
+    document.body.appendChild(toastEl);
+    toastTimer = setTimeout(function () {
+      if (toastEl) { toastEl.remove(); toastEl = null; }
+    }, 6000);
+  }
+
+  qEl.addEventListener('input', function () {
+    state.q = qEl.value.trim();
+    render();
+  });
+
+  // Open the oldest waiting request so the page shows what it does at rest.
+  state.open['2026-0398'] = true;
+  render();
+})();
+</script>

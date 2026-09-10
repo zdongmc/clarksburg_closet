@@ -1,0 +1,912 @@
+<title>Requests &amp; People Served</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+
+<style>
+  :root {
+    --ground:      #F2F4F7;
+    --panel:       #FFFFFF;
+    --sunk:        #EDF0F4;
+    --ink:         #141B24;
+    --ink-2:       #4A5561;
+    --ink-3:       #78838F;
+    --rule:        #DCE2E9;
+    --rule-strong: #B6C0CA;
+    --grid:        #E6EAEF;
+    --accent:      #00467F;
+    --accent-ink:  #FFFFFF;
+    --accent-soft: #E4EDF5;
+
+    /* Chart series. Brand-adjacent steps, validated for the lightness band,
+       chroma floor, CVD separation and surface contrast in BOTH themes --
+       which is why the same two values serve light and dark. */
+    --s1: #2F74AD;
+    --s2: #7BA33C;
+
+    color-scheme: light;
+
+    --display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+    --body:    'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+    --mono:    'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #11161C;
+      --panel:       #1A2027;
+      --sunk:        #161B21;
+      --ink:         #E8ECF1;
+      --ink-2:       #B3BDC7;
+      --ink-3:       #8A95A1;
+      --rule:        #2A313A;
+      --rule-strong: #454F59;
+      --grid:        #262E37;
+      --accent:      #94BBDE;
+      --accent-ink:  #0E141A;
+      --accent-soft: #212D39;
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #11161C;
+    --panel:       #1A2027;
+    --sunk:        #161B21;
+    --ink:         #E8ECF1;
+    --ink-2:       #B3BDC7;
+    --ink-3:       #8A95A1;
+    --rule:        #2A313A;
+    --rule-strong: #454F59;
+    --grid:        #262E37;
+    --accent:      #94BBDE;
+    --accent-ink:  #0E141A;
+    --accent-soft: #212D39;
+    color-scheme: dark;
+  }
+
+  [hidden] { display: none !important; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    max-width: 62rem;
+    margin: 0 auto;
+    padding-inline: 18px;
+    padding-block: 26px 72px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .notice {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 11px 15px;
+    font-size: 0.87rem;
+    color: var(--ink-2);
+  }
+
+  .notice strong { font-family: var(--display); color: var(--ink); }
+
+  .masthead { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .logo { width: 62px; height: 62px; flex: none; display: block; }
+  .mast-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 4.6vw, 2.1rem);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  /* ---------- controls ---------- */
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .ctl { display: flex; flex-direction: column; gap: 4px; }
+
+  .ctl label {
+    font-family: var(--display);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .ctl select, .toggle-btn {
+    font-family: var(--body);
+    font-size: 1rem;
+    min-height: 44px;
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--rule-strong);
+    padding: 9px 13px;
+    cursor: pointer;
+  }
+
+  .toggle-btn {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+
+  .toggle-btn[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- headline tiles ---------- */
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .tile {
+    background: var(--panel);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .tile .k {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .tile .v {
+    font-family: var(--display);
+    font-size: 2.3rem;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tile .sub { font-size: 0.82rem; color: var(--ink-3); }
+
+  /* ---------- chart panels ---------- */
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .panel-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 18px;
+  }
+
+  .panel-head h2 {
+    font-family: var(--display);
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .panel-head .note { font-size: 0.85rem; color: var(--ink-3); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+  .legend span {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.88rem;
+    color: var(--ink-2);
+  }
+
+  .legend i {
+    width: 13px;
+    height: 13px;
+    flex: none;
+    border-radius: 2px;
+    display: block;
+  }
+
+  .chart-wrap { overflow-x: auto; }
+  svg { display: block; width: 100%; height: auto; }
+
+  .tick { font-family: var(--mono); font-size: 10px; fill: var(--ink-3); }
+  .axis-label { font-family: var(--display); font-size: 10px; font-weight: 700; fill: var(--ink-3); letter-spacing: 0.08em; }
+  .bar-total { font-family: var(--mono); font-size: 11px; font-weight: 600; fill: var(--ink-2); }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .axis-line { stroke: var(--rule-strong); stroke-width: 1; }
+  .hit { fill: transparent; cursor: pointer; }
+  .hit:hover + .hl, .hit:focus + .hl { opacity: 1; }
+  .hl { fill: var(--accent); opacity: 0; pointer-events: none; }
+
+  /* ---------- tooltip ---------- */
+
+  .tip {
+    position: fixed;
+    z-index: 40;
+    background: var(--ink);
+    color: var(--ground);
+    padding: 9px 12px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    pointer-events: none;
+    max-width: 15rem;
+  }
+
+  .tip[hidden] { display: none !important; }
+  .tip b { font-family: var(--display); display: block; margin-bottom: 3px; }
+  .tip .row { display: flex; align-items: center; gap: 7px; font-variant-numeric: tabular-nums; }
+  .tip .row i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .tip .row .n { margin-left: auto; font-family: var(--mono); }
+
+  /* ---------- table view ---------- */
+
+  .tbl-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+
+  th {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-align: right;
+    padding: 7px 10px 7px 0;
+    border-bottom: 1px solid var(--rule-strong);
+    white-space: nowrap;
+  }
+
+  th:first-child, td:first-child { text-align: left; }
+
+  td {
+    padding: 6px 10px 6px 0;
+    border-bottom: 1px solid var(--rule);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    font-family: var(--mono);
+    white-space: nowrap;
+  }
+
+  td:first-child { font-family: var(--body); }
+  tr.picked td { background: var(--accent-soft); font-weight: 600; }
+  tr.total td { font-weight: 700; border-top: 2px solid var(--rule-strong); border-bottom: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="app">
+
+  <div class="notice">
+    <strong>Mockup for discussion.</strong> Sample figures, not real closet data. The fiscal year runs <strong>1 July to 30 June</strong>, so &ldquo;year to date&rdquo; means since 1 July.
+  </div>
+
+  <header class="masthead">
+    <img class="logo" alt="Clarksburg Closet" src="data:image/png;base64,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">
+    <div class="mast-text">
+      <div class="eyebrow">Volunteer view &middot; Reports</div>
+      <h1>Requests &amp; People Served</h1>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="ctl">
+      <label for="year">Fiscal year</label>
+      <select id="year"></select>
+    </div>
+    <div class="ctl">
+      <label for="month">Period</label>
+      <select id="month"></select>
+    </div>
+    <div class="ctl">
+      <label for="view">Show as</label>
+      <button type="button" class="toggle-btn" id="view" aria-pressed="false">Charts</button>
+    </div>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <section class="panel" id="p-people">
+    <div class="panel-head">
+      <h2>People clothed each month</h2>
+      <span class="note" id="people-note"></span>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--s1)"></i> Children (under 18)</span>
+      <span><i style="background:var(--s2)"></i> Adults</span>
+    </div>
+    <div class="chart-wrap"><svg id="c-people" role="img" aria-label="Stacked bars of children and adults clothed each month"></svg></div>
+  </section>
+
+  <section class="panel" id="p-req">
+    <div class="panel-head">
+      <h2>Requests received and filled</h2>
+      <span class="note">A request filled in a later month counts in the month it was filled.</span>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--s1)"></i> Received</span>
+      <span><i style="background:var(--s2)"></i> Filled</span>
+    </div>
+    <div class="chart-wrap"><svg id="c-req" role="img" aria-label="Grouped bars of requests received and filled each month"></svg></div>
+  </section>
+
+  <section class="panel" id="p-agency">
+    <div class="panel-head">
+      <h2>Where requests came from</h2>
+      <span class="note" id="agency-note"></span>
+    </div>
+    <div class="chart-wrap"><svg id="c-agency" role="img" aria-label="Horizontal bars of requests by referring agency"></svg></div>
+  </section>
+
+  <section class="panel" id="p-table" hidden>
+    <div class="panel-head">
+      <h2>Month by month</h2>
+      <span class="note">The same figures as the charts above.</span>
+    </div>
+    <div class="tbl-wrap"><table id="tbl"></table></div>
+  </section>
+
+</div>
+
+<div class="tip" id="tip" hidden role="status"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var TODAY = new Date('2026-09-10T12:00:00');
+
+  // The closet's fiscal year runs 1 July - 30 June, so a year is keyed by the
+  // calendar year it STARTS in: FY 2026 means Jul 2026 - Jun 2027, and "year
+  // to date" means since 1 July, not since 1 January.
+  var CUR_FY = 2026;
+  var MONTHS = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+
+  var MONTHS_FULL = ['July','August','September','October','November','December',
+                     'January','February','March','April','May','June'];
+
+  function fyLabel(fy) { return 'FY ' + fy + '\u2013' + String(fy + 1).slice(2); }
+
+  // Months 0-5 fall in the starting calendar year, 6-11 in the next one.
+  function calYear(fy, i) { return i < 6 ? fy : fy + 1; }
+  function monthLabel(fy, i) { return MONTHS[i] + ' ' + calYear(fy, i); }
+
+  // ---------------------------------------------------------------------
+  // Sample figures. m = month index, ch = children under 18, ad = adults,
+  // rec = requests received, fil = requests filled, dec = declined.
+  // 2026 stops at September because that is where "year to date" ends.
+  // ---------------------------------------------------------------------
+  var DATA = {
+    // FY 2026-27, to date: July, August, September 2026.
+    2026: [
+      { ch: 40, ad: 12, rec: 17, fil: 15, dec: 1 },
+      { ch: 58, ad: 17, rec: 24, fil: 20, dec: 2 },
+      { ch: 22, ad:  6, rec:  9, fil:  5, dec: 0 }
+    ],
+    // FY 2025-26, complete: Jul 2025 through Jun 2026.
+    2025: [
+      { ch: 36, ad: 10, rec: 15, fil: 14, dec: 0 },
+      { ch: 51, ad: 15, rec: 21, fil: 19, dec: 2 },
+      { ch: 43, ad: 12, rec: 18, fil: 17, dec: 1 },
+      { ch: 35, ad: 10, rec: 15, fil: 14, dec: 1 },
+      { ch: 30, ad:  9, rec: 13, fil: 12, dec: 1 },
+      { ch: 41, ad: 12, rec: 17, fil: 16, dec: 1 },
+      { ch: 31, ad:  9, rec: 14, fil: 12, dec: 1 },
+      { ch: 24, ad:  7, rec: 11, fil: 10, dec: 1 },
+      { ch: 38, ad: 11, rec: 16, fil: 15, dec: 0 },
+      { ch: 29, ad:  8, rec: 13, fil: 12, dec: 1 },
+      { ch: 44, ad: 13, rec: 18, fil: 16, dec: 2 },
+      { ch: 52, ad: 15, rec: 21, fil: 19, dec: 1 }
+    ],
+    // FY 2024-25, complete.
+    2024: [
+      { ch: 30, ad:  9, rec: 13, fil: 12, dec: 1 },
+      { ch: 44, ad: 13, rec: 18, fil: 17, dec: 1 },
+      { ch: 37, ad: 11, rec: 16, fil: 15, dec: 1 },
+      { ch: 31, ad:  9, rec: 13, fil: 12, dec: 0 },
+      { ch: 26, ad:  8, rec: 12, fil: 11, dec: 1 },
+      { ch: 35, ad: 10, rec: 15, fil: 14, dec: 1 },
+      { ch: 27, ad:  8, rec: 12, fil: 11, dec: 1 },
+      { ch: 21, ad:  6, rec: 10, fil:  9, dec: 0 },
+      { ch: 33, ad: 10, rec: 14, fil: 13, dec: 1 },
+      { ch: 25, ad:  7, rec: 11, fil: 10, dec: 1 },
+      { ch: 39, ad: 11, rec: 16, fil: 15, dec: 1 },
+      { ch: 46, ad: 13, rec: 19, fil: 18, dec: 1 }
+    ]
+  };
+
+  var AGENCIES = {
+    2026: [
+      ['Montgomery County Crisis Center', 13],
+      ['Clarksburg Elementary School', 9],
+      ['Rocky Hill Middle School', 7],
+      ['Interfaith Works', 6],
+      ['Manna Food Center', 4],
+      ['Requested directly by household', 11]
+    ],
+    2025: [
+      ['Montgomery County Crisis Center', 52],
+      ['Clarksburg Elementary School', 35],
+      ['Rocky Hill Middle School', 29],
+      ['Interfaith Works', 25],
+      ['Manna Food Center', 20],
+      ['Requested directly by household', 31]
+    ],
+    2024: [
+      ['Montgomery County Crisis Center', 45],
+      ['Clarksburg Elementary School', 30],
+      ['Rocky Hill Middle School', 24],
+      ['Interfaith Works', 21],
+      ['Manna Food Center', 17],
+      ['Requested directly by household', 32]
+    ]
+  };
+
+  var state = { year: CUR_FY, month: null, table: false };  // month null = year to date
+
+  var $ = function (id) { return document.getElementById(id); };
+  var SVGNS = 'http://www.w3.org/2000/svg';
+
+  function svgEl(tag, attrs) {
+    var n = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) if (attrs.hasOwnProperty(k)) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+
+  function css(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  // A bar with rounded ends only where the data stops -- the baseline end
+  // stays square so the mark reads as anchored, not floating.
+  function barPath(x, y, w, h, r, roundTop) {
+    if (h <= 0) return '';
+    r = Math.min(r, h, w / 2);
+    if (!roundTop || r <= 0) return 'M' + x + ' ' + y + 'h' + w + 'v' + h + 'h' + (-w) + 'Z';
+    return 'M' + x + ' ' + (y + r) +
+           'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + (-r) +
+           'h' + (w - 2 * r) +
+           'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r +
+           'v' + (h - r) + 'h' + (-w) + 'Z';
+  }
+
+  // Round up to a maximum that divides into 4 whole-number ticks, so the axis
+  // reads 0/20/40/60/80 rather than 0/19/38/56/75.
+  function niceMax(v) {
+    if (v <= 0) return 8;
+    var raw = v / 4;
+    var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    var step = [1, 2, 2.5, 3, 4, 5, 6, 8, 10].map(function (m) { return m * mag; })
+                 .filter(function (x) { return x >= raw; })[0] || 10 * mag;
+    return step * 4;
+  }
+
+  // ---------------------------------------------------------------------
+  // Tooltip
+  // ---------------------------------------------------------------------
+  var tip = $('tip');
+
+  function showTip(evt, title, rows) {
+    tip.innerHTML = '';
+    var b = document.createElement('b');
+    b.textContent = title;
+    tip.appendChild(b);
+    rows.forEach(function (r) {
+      var d = document.createElement('div');
+      d.className = 'row';
+      if (r[2]) {
+        var i = document.createElement('i');
+        i.style.background = r[2];
+        d.appendChild(i);
+      }
+      var lab = document.createElement('span');
+      lab.textContent = r[0];
+      d.appendChild(lab);
+      var n = document.createElement('span');
+      n.className = 'n';
+      n.textContent = r[1];
+      d.appendChild(n);
+      tip.appendChild(d);
+    });
+    tip.hidden = false;
+    moveTip(evt);
+  }
+
+  function moveTip(evt) {
+    var pad = 14;
+    var x = (evt.clientX || 0) + pad, y = (evt.clientY || 0) + pad;
+    var r = tip.getBoundingClientRect();
+    if (x + r.width > window.innerWidth - 8) x = evt.clientX - r.width - pad;
+    if (y + r.height > window.innerHeight - 8) y = evt.clientY - r.height - pad;
+    tip.style.left = Math.max(8, x) + 'px';
+    tip.style.top = Math.max(8, y) + 'px';
+  }
+
+  function hideTip() { tip.hidden = true; }
+
+  // ---------------------------------------------------------------------
+  // Charts
+  // ---------------------------------------------------------------------
+
+  function stackedMonths(svg, rows, labels) {
+    var W = 720, H = 300, ml = 38, mr = 12, mt = 22, mb = 34;
+    var iw = W - ml - mr, ih = H - mt - mb;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.innerHTML = '';
+
+    var max = niceMax(Math.max.apply(null, rows.map(function (d) { return d.ch + d.ad; })));
+    var y = function (v) { return mt + ih - (v / max) * ih; };
+    var bw = Math.min(46, iw / rows.length - 10);
+    var step = iw / rows.length;
+
+    for (var t = 0; t <= 4; t++) {
+      var v = max * t / 4, yy = y(v);
+      svg.appendChild(svgEl('line', { x1: ml, x2: ml + iw, y1: yy, y2: yy, class: 'gridline' }));
+      var tx = svgEl('text', { x: ml - 7, y: yy + 3.5, class: 'tick', 'text-anchor': 'end' });
+      tx.textContent = Math.round(v);
+      svg.appendChild(tx);
+    }
+    svg.appendChild(svgEl('line', { x1: ml, x2: ml + iw, y1: y(0), y2: y(0), class: 'axis-line' }));
+
+    var c1 = css('--s1'), c2 = css('--s2');
+
+    if (state.month !== null && state.month < rows.length) {
+      svg.appendChild(svgEl('rect', {
+        x: ml + step * state.month + 2, y: mt - 14,
+        width: step - 4, height: ih + 14,
+        fill: css('--accent-soft')
+      }));
+    }
+
+    rows.forEach(function (d, i) {
+      var x = ml + step * i + (step - bw) / 2;
+      var total = d.ch + d.ad;
+      var hCh = (d.ch / max) * ih, hAd = (d.ad / max) * ih;
+      var GAP = 2; // surface gap so the two segments never fuse
+
+      // adults on top, rounded end; children below, square to the baseline
+      var yAd = y(total), yCh = y(d.ch);
+      svg.appendChild(svgEl('path', { d: barPath(x, yAd, bw, Math.max(0, hAd - GAP), 4, true), fill: c2 }));
+      svg.appendChild(svgEl('path', { d: barPath(x, yCh, bw, hCh, 0, false), fill: c1 }));
+
+      var lb = svgEl('text', { x: x + bw / 2, y: yAd - 7, class: 'bar-total', 'text-anchor': 'middle' });
+      lb.textContent = total;
+      svg.appendChild(lb);
+
+      var mx = svgEl('text', { x: x + bw / 2, y: H - 12, class: 'tick', 'text-anchor': 'middle' });
+      if (state.month === i) { mx.setAttribute('fill', css('--ink')); mx.setAttribute('font-weight', '600'); }
+      mx.textContent = labels[i];
+      svg.appendChild(mx);
+
+      var hit = svgEl('rect', { x: ml + step * i, y: mt, width: step, height: ih, class: 'hit', tabindex: '0' });
+      hit.addEventListener('mousemove', function (e) {
+        showTip(e, monthLabel(state.year, i), [
+          ['Children', d.ch, c1], ['Adults', d.ad, c2], ['Total', total, null]
+        ]);
+      });
+      hit.addEventListener('mouseleave', hideTip);
+      hit.addEventListener('focus', function (e) {
+        var r = hit.getBoundingClientRect();
+        showTip({ clientX: r.left + r.width / 2, clientY: r.top }, monthLabel(state.year, i), [
+          ['Children', d.ch, c1], ['Adults', d.ad, c2], ['Total', total, null]
+        ]);
+      });
+      hit.addEventListener('blur', hideTip);
+      hit.addEventListener('click', function () { selectMonth(i); });
+      svg.appendChild(hit);
+    });
+  }
+
+  function groupedMonths(svg, rows, labels) {
+    var W = 720, H = 260, ml = 38, mr = 12, mt = 20, mb = 34;
+    var iw = W - ml - mr, ih = H - mt - mb;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.innerHTML = '';
+
+    var max = niceMax(Math.max.apply(null, rows.map(function (d) { return Math.max(d.rec, d.fil); })));
+    var y = function (v) { return mt + ih - (v / max) * ih; };
+    var step = iw / rows.length;
+    var bw = Math.min(16, (step - 12) / 2);
+
+    for (var t = 0; t <= 4; t++) {
+      var v = max * t / 4, yy = y(v);
+      svg.appendChild(svgEl('line', { x1: ml, x2: ml + iw, y1: yy, y2: yy, class: 'gridline' }));
+      var tx = svgEl('text', { x: ml - 7, y: yy + 3.5, class: 'tick', 'text-anchor': 'end' });
+      tx.textContent = Math.round(v);
+      svg.appendChild(tx);
+    }
+    svg.appendChild(svgEl('line', { x1: ml, x2: ml + iw, y1: y(0), y2: y(0), class: 'axis-line' }));
+
+    var c1 = css('--s1'), c2 = css('--s2');
+
+    if (state.month !== null && state.month < rows.length) {
+      svg.appendChild(svgEl('rect', {
+        x: ml + step * state.month + 2, y: mt,
+        width: step - 4, height: ih,
+        fill: css('--accent-soft')
+      }));
+    }
+
+    rows.forEach(function (d, i) {
+      var cx = ml + step * i + step / 2;
+      var x1 = cx - bw - 1, x2 = cx + 1;   // 2px surface gap between the pair
+      svg.appendChild(svgEl('path', { d: barPath(x1, y(d.rec), bw, ih - (y(d.rec) - mt), 4, true), fill: c1 }));
+      svg.appendChild(svgEl('path', { d: barPath(x2, y(d.fil), bw, ih - (y(d.fil) - mt), 4, true), fill: c2 }));
+
+      var mx = svgEl('text', { x: cx, y: H - 12, class: 'tick', 'text-anchor': 'middle' });
+      if (state.month === i) { mx.setAttribute('fill', css('--ink')); mx.setAttribute('font-weight', '600'); }
+      mx.textContent = labels[i];
+      svg.appendChild(mx);
+
+      var hit = svgEl('rect', { x: ml + step * i, y: mt, width: step, height: ih, class: 'hit', tabindex: '0' });
+      var rowsFor = function () {
+        return [['Received', d.rec, c1], ['Filled', d.fil, c2], ['Declined', d.dec, null]];
+      };
+      hit.addEventListener('mousemove', function (e) { showTip(e, monthLabel(state.year, i), rowsFor()); });
+      hit.addEventListener('mouseleave', hideTip);
+      hit.addEventListener('focus', function () {
+        var r = hit.getBoundingClientRect();
+        showTip({ clientX: r.left + r.width / 2, clientY: r.top }, monthLabel(state.year, i), rowsFor());
+      });
+      hit.addEventListener('blur', hideTip);
+      svg.appendChild(hit);
+    });
+  }
+
+  // Horizontal bars need the rounded end on the right, not the top.
+  function hBarPath(x, y, w, h, r) {
+    r = Math.min(r, w, h / 2);
+    return 'M' + x + ' ' + y + 'h' + (w - r) +
+           'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r +
+           'v' + (h - 2 * r) +
+           'a' + r + ' ' + r + ' 0 0 1 ' + (-r) + ' ' + r +
+           'h' + (-(w - r)) + 'Z';
+  }
+
+  function agencyBars(svg, rows) {
+    var W = 720, rowH = 34, ml = 258, mr = 46, mt = 6;
+    var H = mt + rows.length * rowH + 6;
+    var iw = W - ml - mr;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.innerHTML = '';
+
+    var max = niceMax(Math.max.apply(null, rows.map(function (r) { return r[1]; })));
+    var c1 = css('--s1');
+
+    rows.forEach(function (r, i) {
+      var y = mt + i * rowH + 6, bh = 18;
+      var w = (r[1] / max) * iw;
+
+      var lab = svgEl('text', { x: ml - 10, y: y + 13, class: 'tick', 'text-anchor': 'end' });
+      lab.textContent = r[0].length > 34 ? r[0].slice(0, 33) + '\u2026' : r[0];
+      svg.appendChild(lab);
+
+      svg.appendChild(svgEl('path', { d: hBarPath(ml, y, Math.max(3, w), bh, 4), fill: c1 }));
+
+      var v = svgEl('text', { x: ml + Math.max(2, w) + 8, y: y + 13, class: 'bar-total' });
+      v.textContent = r[1];
+      svg.appendChild(v);
+
+      var hit = svgEl('rect', { x: 0, y: y - 6, width: W, height: rowH, class: 'hit', tabindex: '0' });
+      hit.addEventListener('mousemove', function (e) { showTip(e, r[0], [['Requests', r[1], c1]]); });
+      hit.addEventListener('mouseleave', hideTip);
+      hit.addEventListener('focus', function () {
+        var b = hit.getBoundingClientRect();
+        showTip({ clientX: b.left + 200, clientY: b.top }, r[0], [['Requests', r[1], c1]]);
+      });
+      hit.addEventListener('blur', hideTip);
+      svg.appendChild(hit);
+    });
+  }
+
+  // ---------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------
+
+  function sum(rows, key) {
+    return rows.reduce(function (a, d) { return a + d[key]; }, 0);
+  }
+
+  function stats(rows) {
+    return {
+      kids: sum(rows, 'ch'), adults: sum(rows, 'ad'),
+      people: sum(rows, 'ch') + sum(rows, 'ad'),
+      rec: sum(rows, 'rec'), fil: sum(rows, 'fil'), dec: sum(rows, 'dec')
+    };
+  }
+
+  // "24 more than August" reads better to a volunteer than "+53%".
+  function delta(now, before, label) {
+    if (before == null) return '';
+    var d = now - before;
+    if (d === 0) return 'Same as ' + label;
+    return Math.abs(d) + (d > 0 ? ' more than ' : ' fewer than ') + label;
+  }
+
+  function render() {
+    var rows = DATA[state.year];
+    var labels = MONTHS.slice(0, rows.length);
+    var isYTD = state.year === CUR_FY;
+    var period = state.month !== null
+      ? monthLabel(state.year, state.month)
+      : (isYTD ? 'Year to date' : fyLabel(state.year));
+
+    // tiles
+    var ytd = stats(rows);
+    var tiles;
+
+    if (state.month === null) {
+      tiles = [
+        ['People clothed', ytd.people,
+         period + ' \u00b7 ' + labels.length + (labels.length === 1 ? ' month' : ' months')],
+        ['Children', ytd.kids, Math.round(ytd.kids / ytd.people * 100) + '% of everyone served'],
+        ['Requests filled', ytd.fil, ytd.rec + ' received'],
+        ['Average per request', (ytd.people / ytd.rec).toFixed(1), 'people on a request']
+      ];
+    } else {
+      var m = state.month;
+      var cur = stats([rows[m]]);
+      var prev = m > 0 ? stats([rows[m - 1]]) : null;
+      var lastYearRows = DATA[state.year - 1];
+      var ly = (lastYearRows && lastYearRows[m]) ? stats([lastYearRows[m]]) : null;
+
+      tiles = [
+        ['People clothed', cur.people,
+         prev ? delta(cur.people, prev.people, MONTHS[m - 1]) : 'First month of the fiscal year'],
+        ['Children', cur.kids,
+         cur.people ? Math.round(cur.kids / cur.people * 100) + '% of this month' : '\u2014'],
+        ['Requests filled', cur.fil,
+         cur.rec + ' received' + (cur.dec ? ', ' + cur.dec + ' declined' : '')],
+        ['Year to date', ytd.people,
+         ly ? 'People clothed \u00b7 ' + ly.people + ' in ' + monthLabel(state.year - 1, m)
+            : 'People clothed since 1 July']
+      ];
+    }
+
+    var tEl = $('tiles');
+    tEl.innerHTML = '';
+    tiles.forEach(function (t) {
+      var d = document.createElement('div');
+      d.className = 'tile';
+      var k = document.createElement('span'); k.className = 'k'; k.textContent = t[0];
+      var v = document.createElement('span'); v.className = 'v'; v.textContent = t[1];
+      var sb = document.createElement('span'); sb.className = 'sub'; sb.textContent = t[2];
+      d.appendChild(k); d.appendChild(v); d.appendChild(sb);
+      tEl.appendChild(d);
+    });
+
+    var lastIdx = labels.length - 1;
+    $('people-note').textContent = state.month === null
+      ? (isYTD
+          ? 'July through ' + MONTHS_FULL[lastIdx] + ' ' + calYear(state.year, lastIdx) +
+            '. ' + MONTHS_FULL[lastIdx] + ' is still in progress.'
+          : 'All twelve months of ' + fyLabel(state.year) + ', July through June.')
+      : monthLabel(state.year, state.month) +
+        ' is highlighted; the rest of the fiscal year is shown for context.';
+    $('agency-note').textContent = (isYTD ? 'Year to date' : fyLabel(state.year)) +
+      ' \u00B7 ' + ytd.rec + ' requests';
+
+    stackedMonths($('c-people'), rows, labels);
+    groupedMonths($('c-req'), rows, labels);
+    agencyBars($('c-agency'), AGENCIES[state.year].slice().sort(function (a, b) { return b[1] - a[1]; }));
+
+    // table
+    var tbl = $('tbl');
+    tbl.innerHTML = '';
+    var head = tbl.insertRow();
+    ['Month', 'Children', 'Adults', 'People', 'Received', 'Filled', 'Declined'].forEach(function (h) {
+      var th = document.createElement('th'); th.textContent = h; head.appendChild(th);
+    });
+    rows.forEach(function (d, i) {
+      var tr = tbl.insertRow();
+      if (state.month === i) tr.className = 'picked';
+      [monthLabel(state.year, i), d.ch, d.ad, d.ch + d.ad, d.rec, d.fil, d.dec].forEach(function (v) {
+        tr.insertCell().textContent = v;
+      });
+    });
+    var tot = tbl.insertRow();
+    tot.className = 'total';
+    [period, kids, sum(rows, 'ad'), people, sum(rows, 'rec'), sum(rows, 'fil'), sum(rows, 'dec')]
+      .forEach(function (v) { tot.insertCell().textContent = v; });
+
+    ['p-people', 'p-req', 'p-agency'].forEach(function (id) { $(id).hidden = state.table; });
+    $('p-table').hidden = !state.table;
+  }
+
+  // controls
+  var ySel = $('year');
+  Object.keys(DATA).sort().reverse().forEach(function (y) {
+    ySel.appendChild(new Option(
+      fyLabel(+y) + (+y === CUR_FY ? ' (year to date)' : ''), y));
+  });
+  ySel.value = String(CUR_FY);
+  ySel.addEventListener('change', function () {
+    state.year = +ySel.value;
+    state.month = null;          // a month index means nothing across a year change
+    fillMonths();
+    hideTip();
+    render();
+  });
+
+  var mSel = $('month');
+
+  function fillMonths() {
+    var n = DATA[state.year].length;
+    mSel.innerHTML = '';
+    mSel.appendChild(new Option(state.year === CUR_FY ? 'Year to date' : 'Whole fiscal year', ''));
+    for (var i = 0; i < n; i++) mSel.appendChild(new Option(monthLabel(state.year, i), String(i)));
+    mSel.value = state.month === null ? '' : String(state.month);
+  }
+
+  function selectMonth(i) {
+    state.month = i;
+    mSel.value = String(i);
+    hideTip();
+    render();
+  }
+
+  mSel.addEventListener('change', function () {
+    state.month = mSel.value === '' ? null : +mSel.value;
+    hideTip();
+    render();
+  });
+
+  var vBtn = $('view');
+  vBtn.addEventListener('click', function () {
+    state.table = !state.table;
+    vBtn.setAttribute('aria-pressed', state.table);
+    vBtn.textContent = state.table ? 'Table' : 'Charts';
+    hideTip();
+    render();
+  });
+
+  window.addEventListener('scroll', hideTip, { passive: true });
+  fillMonths();
+  render();
+})();
+</script>

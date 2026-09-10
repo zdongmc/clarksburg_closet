@@ -1,0 +1,1291 @@
+<title>Clothing Request Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+
+<style>
+  :root {
+    --ground:      #F5F6F8;
+    --panel:       #FFFFFF;
+    --sunk:        #EFF2F5;
+    --ink:         #1A2330;
+    --ink-soft:    #5C6878;
+    --rule:        #DDE2E9;
+    --rule-strong: #C3CBD6;
+    --accent:      #00467F;
+    --accent-ink:  #FFFFFF;
+    --accent-soft: #E4EDF5;
+    --flag:        #9A6414;
+    --flag-soft:   #F6EEDF;
+    --bad:         #A33A2E;
+    --bad-soft:    #F8E7E4;
+    --good:        #4C7A1F;
+    --good-soft:   #EDF3E1;
+    color-scheme: light;
+
+    --display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+    --body:    'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+    --mono:    'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #14191F;
+      --panel:       #1B2027;
+      --sunk:        #171C22;
+      --ink:         #E7EBF0;
+      --ink-soft:    #9AA6B4;
+      --rule:        #2C333C;
+      --rule-strong: #3D4650;
+      --accent:      #8FB4D8;
+      --accent-ink:  #10161C;
+      --accent-soft: #232E3A;
+      --flag:        #D9A85C;
+      --flag-soft:   #2C2619;
+      --bad:         #E2857A;
+      --bad-soft:    #2E1D1A;
+      --good:        #A8C97A;
+      --good-soft:   #232B1A;
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #14191F;
+    --panel:       #1B2027;
+    --sunk:        #171C22;
+    --ink:         #E7EBF0;
+    --ink-soft:    #9AA6B4;
+    --rule:        #2C333C;
+    --rule-strong: #3D4650;
+    --accent:      #8FB4D8;
+    --accent-ink:  #10161C;
+    --accent-soft: #232E3A;
+    --flag:        #D9A85C;
+    --flag-soft:   #2C2619;
+    --bad:         #E2857A;
+    --bad-soft:    #2E1D1A;
+    --good:        #A8C97A;
+    --good-soft:   #232B1A;
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding-inline: 18px;
+    padding-block: 32px 72px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .notice {
+    background: var(--flag-soft);
+    border-left: 3px solid var(--flag);
+    padding: 12px 16px;
+    font-size: 0.88rem;
+  }
+
+  .notice strong { font-family: var(--display); }
+
+  .masthead { display: flex; flex-direction: column; gap: 10px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(1.7rem, 5vw, 2.2rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+
+  .logo {
+    width: 72px;
+    height: 72px;
+    flex: none;
+    display: block;
+  }
+
+  .brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .brand-lockup > .brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .lede { color: var(--ink-soft); max-width: 60ch; margin: 0; font-size: 0.98rem; }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .panel > h2 {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 14px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+
+  label, .lbl {
+    font-family: var(--display);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .req { color: var(--bad); }
+
+  .hint { font-size: 0.8rem; color: var(--ink-soft); }
+
+  /* Touch sizing: case workers fill this in on a phone or tablet as often as
+     a desktop, and 16px fields stop iOS zooming in on focus. */
+  input[type="text"], input[type="tel"], input[type="email"], input[type="date"],
+  input[type="number"], select, textarea {
+    font-family: var(--body);
+    font-size: 1rem;
+    color: var(--ink);
+    background: var(--sunk);
+    border: 1px solid var(--rule-strong);
+    padding: 11px 12px;
+    min-height: 44px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  textarea { resize: vertical; min-height: 4.5rem; line-height: 1.45; }
+  select { cursor: pointer; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .invalid { border-color: var(--bad) !important; background: var(--bad-soft); }
+
+  .err {
+    font-size: 0.82rem;
+    color: var(--bad);
+    font-weight: 600;
+  }
+
+  /* ---------- size field ---------- */
+
+  .sizefield .lbl-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .info-btn {
+    font-family: var(--display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    padding: 7px 12px;
+    min-height: 38px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .info-btn:hover { background: var(--accent); color: var(--accent-ink); }
+
+  .cross-note {
+    font-size: 0.82rem;
+    color: var(--flag);
+    background: var(--flag-soft);
+    border-left: 2px solid var(--flag);
+    padding: 6px 9px;
+  }
+
+  /* ---------- shoe chip picker ---------- */
+
+  details.picker {
+    border: 1px solid var(--rule-strong);
+    background: var(--sunk);
+  }
+
+  details.picker > summary {
+    padding: 12px;
+    min-height: 44px;
+    cursor: pointer;
+    font-size: 1rem;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+  }
+
+  details.picker > summary::-webkit-details-marker { display: none; }
+  details.picker > summary::after { content: '▾'; color: var(--ink-soft); flex: none; }
+  details.picker[open] > summary::after { content: '▴'; }
+
+  .summary-empty { color: var(--ink-soft); }
+
+  .picker-body {
+    border-top: 1px solid var(--rule-strong);
+    padding: 12px 10px;
+    max-height: 17rem;
+    overflow-y: auto;
+    background: var(--panel);
+  }
+
+  .chip-cap {
+    font-family: var(--display);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 12px 0 6px;
+  }
+
+  .chip-cap:first-child { margin-top: 0; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .chip {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    min-height: 40px;
+    background: var(--sunk);
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+    padding: 6px 13px;
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chip:hover { border-color: var(--accent); }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .chip.none { font-family: var(--body); }
+
+  /* ---------- recipients ---------- */
+
+  .recip {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--accent);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .recip-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .recip-head h3 { font-family: var(--display); font-size: 1.05rem; font-weight: 700; margin: 0; }
+  .recip-num { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); }
+
+  .link-btn {
+    font-family: var(--body);
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--rule-strong);
+    padding: 0 0 1px;
+    cursor: pointer;
+  }
+
+  .link-btn:hover { color: var(--flag); border-color: var(--flag); }
+
+  .age-row { display: grid; grid-template-columns: 5.5rem 1fr; gap: 8px; }
+
+  .check { display: flex; align-items: flex-start; gap: 9px; cursor: pointer; }
+  .check input { margin-top: 2px; flex: none; width: 1.4rem; height: 1.4rem; }
+  .check span {
+    font-family: var(--body); font-size: 0.92rem; text-transform: none;
+    letter-spacing: 0; color: var(--ink); font-weight: 400;
+  }
+
+  .btn {
+    font-family: var(--display);
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: 1px solid var(--accent);
+    padding: 11px 18px;
+    cursor: pointer;
+  }
+
+  .btn.ghost { background: none; color: var(--accent); }
+  .btn.ghost:hover { background: var(--accent-soft); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .summary-err {
+    background: var(--bad-soft);
+    border-left: 3px solid var(--bad);
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+
+  .summary-err strong { font-family: var(--display); color: var(--bad); }
+
+  /* ---------- dialog ---------- */
+
+  dialog {
+    background: var(--panel);
+    color: var(--ink);
+    border: 1px solid var(--rule-strong);
+    padding: 0;
+    max-width: 34rem;
+    width: calc(100% - 32px);
+    max-height: 86vh;
+  }
+
+  dialog::backdrop { background: rgba(10, 15, 22, 0.55); }
+
+  .dlg-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--rule);
+    position: sticky;
+    top: 0;
+    background: var(--panel);
+  }
+
+  .dlg-head h2 { font-family: var(--display); font-size: 1.05rem; font-weight: 700; margin: 0; }
+  .dlg-body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
+
+  .estimator { background: var(--accent-soft); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+  .estimator h3 {
+    font-family: var(--display); font-size: 0.8rem; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase; margin: 0; color: var(--accent);
+  }
+
+  .est-inputs { display: flex; gap: 10px; flex-wrap: wrap; }
+  .est-inputs .field { flex: 1 1 7rem; }
+  .est-inputs input { background: var(--panel); }
+
+  .est-out { font-size: 0.95rem; background: var(--good-soft); border-left: 3px solid var(--good); padding: 8px 12px; }
+  .est-out.empty { background: none; border-left-color: var(--rule-strong); color: var(--ink-soft); }
+  .est-out strong { font-family: var(--mono); font-size: 1.05rem; color: var(--ink); }
+
+  .tbl-scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+
+  th {
+    font-family: var(--display); font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft);
+    text-align: left; padding: 6px 10px 6px 0;
+    border-bottom: 1px solid var(--rule-strong); white-space: nowrap;
+  }
+
+  td {
+    padding: 6px 10px 6px 0; border-bottom: 1px solid var(--rule);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+
+  td:first-child { font-family: var(--mono); font-weight: 500; }
+  tr.match td { background: var(--good-soft); }
+  tr.match td:first-child { color: var(--good); font-weight: 600; }
+
+  .grp-cap {
+    font-family: var(--display); font-size: 0.72rem; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); padding-top: 10px;
+  }
+
+  .caveat { font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
+
+  @media (max-width: 520px) {
+    .recip-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="notice" id="notice">
+    <strong>Mockup for discussion.</strong> Nothing here is saved or sent. The size lists and the charts behind each <em>Sizing help</em> button are drafts &mdash; corrections welcome.
+  </div>
+
+  <header class="masthead">
+    <div class="brand-lockup">
+      <img class="logo" alt="Clarksburg Closet" src="data:image/png;base64,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">
+      <div class="brand-text">
+        <div class="eyebrow">23810 Stringtown Road &middot; Clarksburg, MD</div>
+        <h1>Clothing Request Form</h1>
+      </div>
+    </div>
+    <p class="lede">One request can cover up to 10 people, whether you&rsquo;re requesting for your own household or on someone else&rsquo;s behalf. Each household may request once per season. Every size has a <em>Sizing help</em> button with charts by age, height and weight &mdash; please use it rather than guessing, since we can&rsquo;t guess sizes for you.</p>
+  </header>
+
+  <section class="panel">
+    <h2>Who is making this request</h2>
+    <div class="row">
+      <div class="field">
+        <label for="req-date">Date of request</label>
+        <input type="date" id="req-date">
+      </div>
+      <div class="field">
+        <label for="req-name">Your name <span class="req">*</span></label>
+        <input type="text" id="req-name" placeholder="First and last name">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="req-phone">Cell phone number <span class="req">*</span></label>
+        <input type="tel" id="req-phone" placeholder="(301) 555-0100">
+      </div>
+      <div class="field">
+        <label for="req-email">Email address <span class="req">*</span></label>
+        <input type="email" id="req-email" placeholder="you@example.org">
+        <div class="hint">We send your confirmation here.</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="req-agency">Organization or agency</label>
+        <input type="text" id="req-agency" list="agency-list" placeholder="Start typing&hellip;">
+        <datalist id="agency-list">
+          <option value="Montgomery County Crisis Center"></option>
+          <option value="Clarksburg Elementary School"></option>
+          <option value="Rocky Hill Middle School"></option>
+          <option value="Interfaith Works"></option>
+          <option value="Manna Food Center"></option>
+        </datalist>
+        <div class="hint">Leave blank if you are requesting for yourself or your own household.</div>
+      </div>
+    </div>
+  </section>
+
+  <div id="recipients"></div>
+
+  <div class="actions">
+    <button type="button" class="btn ghost" id="add-recip">+ Add another recipient</button>
+    <span class="hint" id="recip-count"></span>
+  </div>
+
+  <section class="panel">
+    <h2>Prayer request</h2>
+    <div class="field">
+      <label for="prayer">Anything you&rsquo;d like us to pray for</label>
+      <textarea id="prayer" placeholder="Optional"></textarea>
+    </div>
+  </section>
+
+  <div id="submit-errors"></div>
+
+  <div class="actions">
+    <button type="button" class="btn" id="submit-btn">Submit request</button>
+    <span class="hint">Every size must be chosen, or marked <em>Not needed</em>.</span>
+  </div>
+
+</div>
+
+<dialog id="sizedlg">
+  <div class="dlg-head">
+    <h2 id="dlg-title">Sizing help</h2>
+    <button type="button" class="link-btn" id="dlg-close">Close</button>
+  </div>
+  <div class="dlg-body" id="dlg-body"></div>
+</dialog>
+
+<script>
+(function () {
+  'use strict';
+
+  // -------------------------------------------------------------------------
+  // Size charts. Height in inches, weight in pounds, both typical rather than
+  // exact -- every brand cuts differently. hi/wi are [min, max] ranges the
+  // estimator matches against; the strings are what a requester reads.
+  // -------------------------------------------------------------------------
+
+  function r(size, age, h, w, hi, wi) {
+    return { size: size, age: age, h: h, w: w, hi: hi, wi: wi };
+  }
+
+  var BABY = [
+    r('0-3M',   '0-3 mo',   '21-24"', '8-12 lb',  [21, 24], [8, 12]),
+    r('3-6M',   '3-6 mo',   '24-26"', '12-16 lb', [24, 26], [12, 16]),
+    r('6-9M',   '6-9 mo',   '26-28"', '16-20 lb', [26, 28], [16, 20]),
+    r('9-12M',  '9-12 mo',  '28-30"', '20-24 lb', [28, 30], [20, 24]),
+    r('12-18M', '12-18 mo', '30-32"', '24-27 lb', [30, 32], [24, 27]),
+    r('18-24M', '18-24 mo', '32-34"', '27-30 lb', [32, 34], [27, 30])
+  ];
+
+  var TODDLER = [
+    r('2T', '2 yr', '34-36"', '29-33 lb', [34, 36], [29, 33]),
+    r('3T', '3 yr', '36-39"', '33-36 lb', [36, 39], [33, 36]),
+    r('4T', '4 yr', '39-42"', '36-40 lb', [39, 42], [36, 40])
+  ];
+
+  var GIRLS = [
+    r('4',  '4 yr',     '39-42"', '37-41 lb',  [39, 42], [37, 41]),
+    r('5',  '5 yr',     '42-45"', '41-45 lb',  [42, 45], [41, 45]),
+    r('6',  '6 yr',     '45-47"', '45-50 lb',  [45, 47], [45, 50]),
+    r('7',  '7 yr',     '49-51"', '54-58 lb',  [49, 51], [54, 58]),
+    r('8',  '8 yr',     '51-53"', '58-65 lb',  [51, 53], [58, 65]),
+    r('10', '9-10 yr',  '53-55"', '65-75 lb',  [53, 55], [65, 75]),
+    r('12', '11-12 yr', '55-58"', '75-85 lb',  [55, 58], [75, 85]),
+    r('14', '13 yr',    '58-61"', '85-95 lb',  [58, 61], [85, 95]),
+    r('16', '14-15 yr', '61-63"', '95-105 lb', [61, 63], [95, 105])
+  ];
+
+  var BOYS = [
+    r('4',  '4 yr',     '39-42"', '37-41 lb',   [39, 42], [37, 41]),
+    r('5',  '5 yr',     '42-45"', '41-45 lb',   [42, 45], [41, 45]),
+    r('6',  '6 yr',     '45-48"', '45-50 lb',   [45, 48], [45, 50]),
+    r('7',  '7 yr',     '48-50"', '50-55 lb',   [48, 50], [50, 55]),
+    r('8',  '8 yr',     '50-52"', '55-62 lb',   [50, 52], [55, 62]),
+    r('10', '9-10 yr',  '52-55"', '62-72 lb',   [52, 55], [62, 72]),
+    r('12', '11-12 yr', '55-58"', '72-85 lb',   [55, 58], [72, 85]),
+    r('14', '13 yr',    '58-61"', '85-100 lb',  [58, 61], [85, 100]),
+    r('16', '14-15 yr', '61-65"', '100-115 lb', [61, 65], [100, 115]),
+    r('18', '16+ yr',   '65-68"', '115-130 lb', [65, 68], [115, 130])
+  ];
+
+  var WOMENS_TOP = [
+    r('XS', '', '', 'Dress 0-2', null, null), r('S', '', '', 'Dress 4-6', null, null),
+    r('M', '', '', 'Dress 8-10', null, null), r('L', '', '', 'Dress 12-14', null, null),
+    r('XL', '', '', 'Dress 16-18', null, null), r('2XL', '', '', 'Dress 20-22', null, null),
+    r('3XL', '', '', 'Dress 24-26', null, null)
+  ];
+
+  var MENS_TOP = [
+    r('S', '', '', 'Chest 34-36"', null, null), r('M', '', '', 'Chest 38-40"', null, null),
+    r('L', '', '', 'Chest 42-44"', null, null), r('XL', '', '', 'Chest 46-48"', null, null),
+    r('2XL', '', '', 'Chest 50-52"', null, null), r('3XL', '', '', 'Chest 54-56"', null, null)
+  ];
+
+  var WOMENS_PANT = [
+    r('0', '', '', 'Waist 24"', null, null), r('2', '', '', 'Waist 25"', null, null),
+    r('4', '', '', 'Waist 26"', null, null), r('6', '', '', 'Waist 27"', null, null),
+    r('8', '', '', 'Waist 28"', null, null), r('10', '', '', 'Waist 29"', null, null),
+    r('12', '', '', 'Waist 31"', null, null), r('14', '', '', 'Waist 33"', null, null),
+    r('16', '', '', 'Waist 35"', null, null), r('18', '', '', 'Waist 37"', null, null),
+    r('20', '', '', 'Waist 39"', null, null)
+  ];
+
+  var JUNIORS_PANT = [
+    r('1', '', '', 'Waist 24"', null, null), r('3', '', '', 'Waist 25"', null, null),
+    r('5', '', '', 'Waist 26"', null, null), r('7', '', '', 'Waist 27"', null, null),
+    r('9', '', '', 'Waist 28"', null, null), r('11', '', '', 'Waist 30"', null, null),
+    r('13', '', '', 'Waist 32"', null, null), r('15', '', '', 'Waist 34"', null, null)
+  ];
+
+  var DIAPERS = [
+    r('Newborn',        'up to 1 mo', '', 'Up to 10 lb', null, [0, 10]),
+    r('Size 1',         '0-3 mo',     '', '8-14 lb',     null, [8, 14]),
+    r('Size 2',         '3-6 mo',     '', '12-18 lb',    null, [12, 18]),
+    r('Size 3',         '5-12 mo',    '', '16-28 lb',    null, [16, 28]),
+    r('Size 4',         '1-2 yr',     '', '22-37 lb',    null, [22, 37]),
+    r('Size 5',         '2-3 yr',     '', '27-40 lb',    null, [27, 40]),
+    r('Size 6',         '3-4 yr',     '', '35-50 lb',    null, [35, 50]),
+    r('Size 7',         '4-5 yr',     '', '41-46 lb',    null, [41, 46]),
+    r('Size 8',         '5+ yr',      '', '46+ lb',      null, [46, 80]),
+    r('Pull-Ups 2T-3T', '2-3 yr',     '', '18-34 lb',    null, [18, 34]),
+    r('Pull-Ups 3T-4T', '3-4 yr',     '', '32-40 lb',    null, [32, 40]),
+    r('Pull-Ups 4T-5T', '4-5 yr',     '', '38-50 lb',    null, [38, 50])
+  ];
+
+  // Shoes: whole and half sizes on each scale. `half` marks the last whole
+  // size that has no half above it.
+  function shoeScale(from, to, suffix, topHasHalf) {
+    var out = [];
+    for (var i = from; i <= to; i++) {
+      out.push(i + suffix);
+      if (i < to || topHasHalf) out.push(i + '½' + suffix);
+    }
+    return out;
+  }
+
+  var SHOE_C = shoeScale(1, 13, 'C', false);
+  var SHOE_Y = shoeScale(1, 7, 'Y', false);
+  var SHOE_W = shoeScale(5, 12, '', false);
+  var SHOE_M = shoeScale(6, 15, '', false);
+
+  // Chart rows for shoes (whole sizes only -- halves sit between them).
+  var SHOE_C_CHART = [
+    r('1C', '0-3 mo', 'Foot 3.6"', '', null, null), r('2C', '3-6 mo', 'Foot 3.9"', '', null, null),
+    r('3C', '6-9 mo', 'Foot 4.1"', '', null, null), r('4C', '9-12 mo', 'Foot 4.4"', '', null, null),
+    r('5C', '12-18 mo', 'Foot 4.7"', '', null, null), r('6C', '18-24 mo', 'Foot 5.0"', '', null, null),
+    r('7C', '2 yr', 'Foot 5.2"', '', null, null), r('8C', '2-3 yr', 'Foot 5.5"', '', null, null),
+    r('9C', '3 yr', 'Foot 5.8"', '', null, null), r('10C', '3-4 yr', 'Foot 6.1"', '', null, null),
+    r('11C', '4-5 yr', 'Foot 6.4"', '', null, null), r('12C', '5-6 yr', 'Foot 6.7"', '', null, null),
+    r('13C', '6-7 yr', 'Foot 7.0"', '', null, null)
+  ];
+
+  var SHOE_Y_CHART = [
+    r('1Y', '7 yr', 'Foot 7.2"', '', null, null), r('2Y', '8 yr', 'Foot 7.5"', '', null, null),
+    r('3Y', '9 yr', 'Foot 7.8"', '', null, null), r('4Y', '10 yr', 'Foot 8.1"', '', null, null),
+    r('5Y', '11 yr', 'Foot 8.4"', '', null, null), r('6Y', '12 yr', 'Foot 8.6"', '', null, null),
+    r('7Y', '13-14 yr', 'Foot 8.9"', '', null, null)
+  ];
+
+  var SHOE_W_CHART = [
+    r('5', '', 'Foot 8.5"', '', null, null), r('6', '', 'Foot 8.9"', '', null, null),
+    r('7', '', 'Foot 9.3"', '', null, null), r('8', '', 'Foot 9.5"', '', null, null),
+    r('9', '', 'Foot 9.9"', '', null, null), r('10', '', 'Foot 10.2"', '', null, null),
+    r('11', '', 'Foot 10.5"', '', null, null), r('12', '', 'Foot 10.9"', '', null, null)
+  ];
+
+  var SHOE_M_CHART = [
+    r('6', '', 'Foot 9.3"', '', null, null), r('7', '', 'Foot 9.6"', '', null, null),
+    r('8', '', 'Foot 9.9"', '', null, null), r('9', '', 'Foot 10.2"', '', null, null),
+    r('10', '', 'Foot 10.6"', '', null, null), r('11', '', 'Foot 10.9"', '', null, null),
+    r('12', '', 'Foot 11.2"', '', null, null), r('13', '', 'Foot 11.6"', '', null, null),
+    r('14', '', 'Foot 11.9"', '', null, null), r('15', '', 'Foot 12.2"', '', null, null)
+  ];
+
+  var MENS_WAIST = ['28','29','30','31','32','33','34','36','38','40','42','44'];
+  var MENS_INSEAM = ['28','29','30','31','32','34'];
+
+  var ADULT_GROUPS = ["Women's", "Men's", 'Juniors (teen girls, odd sizes)', "Men's waist"];
+
+  function names(rows) { return rows.map(function (x) { return x.size; }); }
+
+  function shirtGroups(gender) {
+    var g = [{ label: 'Baby', opts: names(BABY) }, { label: 'Toddler', opts: names(TODDLER) }];
+    if (gender === 'male') {
+      g.push({ label: "Boys'", opts: names(BOYS) }, { label: "Men's", opts: names(MENS_TOP) });
+    } else if (gender === 'female') {
+      g.push({ label: "Girls'", opts: names(GIRLS) }, { label: "Women's", opts: names(WOMENS_TOP) });
+    } else {
+      g.push({ label: "Girls'", opts: names(GIRLS) }, { label: "Boys'", opts: names(BOYS) },
+             { label: "Women's", opts: names(WOMENS_TOP) }, { label: "Men's", opts: names(MENS_TOP) });
+    }
+    return g;
+  }
+
+  function pantGroups(gender) {
+    var g = [{ label: 'Baby', opts: names(BABY) }, { label: 'Toddler', opts: names(TODDLER) }];
+    var waist = MENS_WAIST.map(function (w) { return w + '" waist'; });
+    if (gender === 'male') {
+      g.push({ label: "Boys'", opts: names(BOYS) }, { label: "Men's waist", opts: waist });
+    } else if (gender === 'female') {
+      g.push({ label: "Girls'", opts: names(GIRLS) }, { label: "Women's", opts: names(WOMENS_PANT) },
+             { label: 'Juniors (teen girls, odd sizes)', opts: names(JUNIORS_PANT) });
+    } else {
+      g.push({ label: "Girls'", opts: names(GIRLS) }, { label: "Boys'", opts: names(BOYS) },
+             { label: "Women's", opts: names(WOMENS_PANT) },
+             { label: 'Juniors (teen girls, odd sizes)', opts: names(JUNIORS_PANT) },
+             { label: "Men's waist", opts: waist });
+    }
+    return g;
+  }
+
+  function shoeGroups(gender) {
+    var g = [{ label: "Kids' (C sizes)", opts: SHOE_C }, { label: 'Youth (Y sizes)', opts: SHOE_Y }];
+    if (gender === 'male') g.push({ label: "Men's", opts: SHOE_M });
+    else if (gender === 'female') g.push({ label: "Women's", opts: SHOE_W });
+    else g.push({ label: "Women's", opts: SHOE_W }, { label: "Men's", opts: SHOE_M });
+    return g;
+  }
+
+  function chartsFor(field, gender) {
+    var out = [];
+    if (field === 'diaper') {
+      out.push({ cap: 'Diapers and pull-ups', rows: DIAPERS, cols: ['Size', 'Typical age', '', 'Weight'] });
+      return out;
+    }
+    if (field === 'shoe') {
+      out.push({ cap: "Kids' (C sizes)", rows: SHOE_C_CHART, cols: ['Size', 'Typical age', 'Foot length'] });
+      out.push({ cap: 'Youth (Y sizes)', rows: SHOE_Y_CHART, cols: ['Size', 'Typical age', 'Foot length'] });
+      if (gender !== 'male') out.push({ cap: "Women's", rows: SHOE_W_CHART, cols: ['Size', '', 'Foot length'] });
+      if (gender !== 'female') out.push({ cap: "Men's", rows: SHOE_M_CHART, cols: ['Size', '', 'Foot length'] });
+      return out;
+    }
+    out.push({ cap: 'Baby', rows: BABY, cols: ['Size', 'Typical age', 'Height', 'Weight'] });
+    out.push({ cap: 'Toddler', rows: TODDLER, cols: ['Size', 'Typical age', 'Height', 'Weight'] });
+    if (gender !== 'male') out.push({ cap: "Girls'", rows: GIRLS, cols: ['Size', 'Typical age', 'Height', 'Weight'] });
+    if (gender !== 'female') out.push({ cap: "Boys'", rows: BOYS, cols: ['Size', 'Typical age', 'Height', 'Weight'] });
+    if (field === 'shirt') {
+      if (gender !== 'male') out.push({ cap: "Women's", rows: WOMENS_TOP, cols: ['Size', '', '', 'Equivalent'] });
+      if (gender !== 'female') out.push({ cap: "Men's", rows: MENS_TOP, cols: ['Size', '', '', 'Equivalent'] });
+    } else if (gender !== 'male') {
+      out.push({ cap: "Women's", rows: WOMENS_PANT, cols: ['Size', '', '', 'Waist'] });
+      out.push({ cap: 'Juniors (teen girls, odd sizes)', rows: JUNIORS_PANT, cols: ['Size', '', '', 'Waist'] });
+    }
+    return out;
+  }
+
+  // -------------------------------------------------------------------------
+  // DOM helpers
+  // -------------------------------------------------------------------------
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function fillSelect(sel, groups, placeholder) {
+    sel.innerHTML = '';
+    sel.appendChild(new Option(placeholder, ''));
+    sel.appendChild(new Option('Not needed', 'none'));
+    groups.forEach(function (g) {
+      var og = document.createElement('optgroup');
+      og.label = g.label;
+      g.opts.forEach(function (o) { og.appendChild(new Option(o, o)); });
+      sel.appendChild(og);
+    });
+  }
+
+  function setSelect(sel, value) {
+    if (!sel || !value) return;
+    var ok = false;
+    Array.prototype.forEach.call(sel.options, function (o) { if (o.value === value) ok = true; });
+    if (ok) { sel.value = value; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+  }
+
+  function groupOf(sel) {
+    var o = sel.selectedOptions && sel.selectedOptions[0];
+    return o && o.parentElement && o.parentElement.label ? o.parentElement.label : '';
+  }
+
+  // -------------------------------------------------------------------------
+  // Sizing-help dialog
+  // -------------------------------------------------------------------------
+
+  var dlg = document.getElementById('sizedlg');
+  var dlgTitle = document.getElementById('dlg-title');
+  var dlgBody = document.getElementById('dlg-body');
+
+  document.getElementById('dlg-close').addEventListener('click', function () { dlg.close(); });
+
+  var FIELD_LABEL = { shirt: 'shirt', pant: 'pant', shoe: 'shoe', diaper: 'diaper' };
+
+  function ageMatches(ageStr, years) {
+    if (!ageStr) return false;
+    if (/mo/.test(ageStr)) return years === 0;
+    var m = ageStr.match(/(\d+)\s*-\s*(\d+)/);
+    if (m) return years >= +m[1] && years <= +m[2];
+    var p = ageStr.match(/(\d+)\+/);
+    if (p) return years >= +p[1];
+    var s = ageStr.match(/(\d+)/);
+    return s ? years === +s[1] : false;
+  }
+
+  function openHelp(field, gender, ageYears, apply) {
+    dlgTitle.textContent = 'Typical ' + FIELD_LABEL[field] + ' sizes';
+    dlgBody.innerHTML = '';
+
+    var est = el('div', 'estimator');
+    est.appendChild(el('h3', null, 'Find a size'));
+    var inputs = el('div', 'est-inputs');
+
+    function mkNum(id, label, ph) {
+      var f = el('div', 'field');
+      var l = el('label', null, label);
+      l.setAttribute('for', id);
+      var i = document.createElement('input');
+      i.type = 'number'; i.id = id; i.placeholder = ph;
+      f.appendChild(l); f.appendChild(i);
+      return { field: f, input: i };
+    }
+
+    var hIn = mkNum('est-h', 'Height (in)', 'e.g. 48');
+    var wIn = mkNum('est-w', 'Weight (lb)', 'e.g. 55');
+    if (field !== 'diaper') inputs.appendChild(hIn.field);
+    inputs.appendChild(wIn.field);
+    est.appendChild(inputs);
+
+    var out = el('div', 'est-out empty', ageYears != null
+      ? 'Rows matching age ' + ageYears + ' are highlighted below. Add height or weight to narrow it down.'
+      : 'Enter a height or weight, or fill in the age on the form, and we’ll highlight the closest sizes.');
+    est.appendChild(out);
+    dlgBody.appendChild(est);
+
+    dlgBody.appendChild(el('p', 'caveat',
+      'These are typical sizes and vary by brand. If you can read the tag in something that already fits, use that instead.'));
+
+    var rendered = [];
+
+    chartsFor(field, gender).forEach(function (sec) {
+      dlgBody.appendChild(el('div', 'grp-cap', sec.cap));
+      var scroll = el('div', 'tbl-scroll');
+      var t = document.createElement('table');
+      var thead = document.createElement('thead');
+      var htr = document.createElement('tr');
+      sec.cols.forEach(function (c) { htr.appendChild(el('th', null, c)); });
+      htr.appendChild(el('th', null, ''));
+      thead.appendChild(htr);
+      t.appendChild(thead);
+      var tb = document.createElement('tbody');
+      sec.rows.forEach(function (row) {
+        var tr = document.createElement('tr');
+        tr.appendChild(el('td', null, row.size));
+        tr.appendChild(el('td', null, row.age || ''));
+        tr.appendChild(el('td', null, row.h || ''));
+        if (sec.cols.length === 4) tr.appendChild(el('td', null, row.w || ''));
+        var pick = el('td');
+        var b = el('button', 'link-btn', 'Use this');
+        b.type = 'button';
+        b.addEventListener('click', function () {
+          var want = row.size;
+          if (field === 'pant' && sec.cap === "Men's waist") want = row.size + '" waist';
+          apply(want);
+          dlg.close();
+        });
+        pick.appendChild(b);
+        tr.appendChild(pick);
+        tb.appendChild(tr);
+        rendered.push({ tr: tr, row: row });
+      });
+      t.appendChild(tb);
+      scroll.appendChild(t);
+      dlgBody.appendChild(scroll);
+    });
+
+    function inRange(v, range) { return range && v != null && v >= range[0] && v <= range[1]; }
+
+    function refresh() {
+      var h = parseFloat(hIn.input.value); if (isNaN(h)) h = null;
+      var w = parseFloat(wIn.input.value); if (isNaN(w)) w = null;
+      var hits = [];
+      rendered.forEach(function (x) {
+        var m = false;
+        if (h != null && inRange(h, x.row.hi)) m = true;
+        if (w != null && inRange(w, x.row.wi)) m = true;
+        if (h == null && w == null && ageYears != null) m = ageMatches(x.row.age, ageYears);
+        x.tr.classList.toggle('match', m);
+        if (m) hits.push(x.row.size);
+      });
+      if (!hits.length) {
+        out.className = 'est-out empty';
+        out.textContent = (h != null || w != null)
+          ? 'No typical size matches those numbers exactly — scan the charts below for the closest row.'
+          : 'Enter a height or weight to highlight the closest sizes.';
+      } else {
+        out.className = 'est-out';
+        out.innerHTML = '';
+        out.appendChild(document.createTextNode('Closest ' + FIELD_LABEL[field] + ' size: '));
+        out.appendChild(el('strong', null, hits.slice(0, 3).join(' or ')));
+      }
+    }
+
+    hIn.input.addEventListener('input', refresh);
+    wIn.input.addEventListener('input', refresh);
+    refresh();
+    dlg.showModal();
+  }
+
+  // -------------------------------------------------------------------------
+  // Recipients
+  // -------------------------------------------------------------------------
+
+  var host = document.getElementById('recipients');
+  var countEl = document.getElementById('recip-count');
+  var errHost = document.getElementById('submit-errors');
+  var seq = 0;
+  var MAX = 10;
+
+  function labelRow(idBase, text, onHelp) {
+    var lr = el('div', 'lbl-row');
+    var l = el('label');
+    l.setAttribute('for', idBase);
+    l.appendChild(document.createTextNode(text + ' '));
+    l.appendChild(el('span', 'req', '*'));
+    lr.appendChild(l);
+    if (onHelp) {
+      var btn = el('button', 'info-btn', 'ⓘ Sizing help');
+      btn.type = 'button';
+      btn.addEventListener('click', onHelp);
+      lr.appendChild(btn);
+    }
+    return lr;
+  }
+
+  // A single-choice size field: dropdown plus a crossover note.
+  function selectField(idBase, labelText, field, ctx) {
+    var wrap = el('div', 'field sizefield');
+    var sel = document.createElement('select');
+    sel.id = idBase;
+    wrap.appendChild(labelRow(idBase, labelText, function () {
+      openHelp(field, ctx.gender(), ctx.ageYears(), function (v) { setSelect(sel, v); });
+    }));
+    wrap.appendChild(sel);
+    var note = el('div', 'cross-note');
+    note.hidden = true;
+    wrap.appendChild(note);
+
+    sel.addEventListener('change', function () {
+      sel.classList.remove('invalid');
+      var age = ctx.ageYears();
+      var grp = groupOf(sel);
+      var adult = ADULT_GROUPS.indexOf(grp) !== -1;
+      if (adult && age != null && age < 13) {
+        note.hidden = false;
+        note.textContent = 'That’s an adult size for a ' + age + '-year-old. If it’s right, leave it — knowing helps us pick the right style.';
+      } else {
+        note.hidden = true;
+      }
+    });
+
+    return { wrap: wrap, select: sel, note: note, value: function () { return sel.value; },
+             markBad: function () { sel.classList.add('invalid'); } };
+  }
+
+  // Shoe field: multi-select chips, so 5 and 5-and-a-half can both be picked.
+  function shoeField(idBase, ctx) {
+    var wrap = el('div', 'field sizefield');
+    var chosen = [];
+
+    var det = document.createElement('details');
+    det.className = 'picker';
+    var sum = document.createElement('summary');
+    sum.id = idBase;
+    var sumTxt = el('span', 'summary-empty', 'Choose one or more sizes…');
+    sum.appendChild(sumTxt);
+    det.appendChild(sum);
+    var body = el('div', 'picker-body');
+    det.appendChild(body);
+
+    wrap.appendChild(labelRow(idBase, 'Shoe size', function () {
+      openHelp('shoe', ctx.gender(), ctx.ageYears(), function (v) { toggle(v, true); });
+    }));
+    wrap.appendChild(det);
+    wrap.appendChild(el('div', 'hint', 'Tick every size that would fit — for example 5 and 5½.'));
+
+    function render() {
+      body.innerHTML = '';
+      var none = el('button', 'chip none', 'Not needed');
+      none.type = 'button';
+      none.setAttribute('aria-pressed', chosen.length === 1 && chosen[0] === 'none');
+      none.addEventListener('click', function () {
+        chosen = (chosen.length === 1 && chosen[0] === 'none') ? [] : ['none'];
+        render(); paint();
+      });
+      var noneWrap = el('div', 'chips');
+      noneWrap.appendChild(none);
+      body.appendChild(noneWrap);
+
+      shoeGroups(ctx.gender()).forEach(function (g) {
+        body.appendChild(el('div', 'chip-cap', g.label));
+        var row = el('div', 'chips');
+        g.opts.forEach(function (o) {
+          var c = el('button', 'chip', o);
+          c.type = 'button';
+          c.setAttribute('aria-pressed', chosen.indexOf(o) !== -1);
+          c.addEventListener('click', function () { toggle(o); });
+          row.appendChild(c);
+        });
+        body.appendChild(row);
+      });
+    }
+
+    function toggle(v, openIt) {
+      var i = chosen.indexOf(v);
+      chosen = chosen.filter(function (x) { return x !== 'none'; });
+      if (i === -1) chosen.push(v); else chosen.splice(chosen.indexOf(v), 1);
+      if (openIt) det.open = true;
+      render(); paint();
+    }
+
+    function paint() {
+      det.classList.remove('invalid');
+      if (!chosen.length) {
+        sumTxt.className = 'summary-empty';
+        sumTxt.textContent = 'Choose one or more sizes…';
+      } else if (chosen[0] === 'none') {
+        sumTxt.className = '';
+        sumTxt.textContent = 'Not needed';
+      } else {
+        sumTxt.className = '';
+        sumTxt.textContent = chosen.join(', ');
+      }
+    }
+
+    render(); paint();
+
+    return {
+      wrap: wrap,
+      rerender: render,
+      value: function () { return chosen.slice(); },
+      markBad: function () { det.classList.add('invalid'); }
+    };
+  }
+
+  function addRecipient() {
+    if (host.querySelectorAll('.recip').length >= MAX) return null;
+    seq += 1;
+    var n = seq;
+    var box = el('section', 'recip');
+
+    var head = el('div', 'recip-head');
+    var h3 = el('h3', null, 'Recipient ');
+    var num = el('span', 'recip-num', '');
+    h3.appendChild(num);
+    head.appendChild(h3);
+    var rm = el('button', 'link-btn', 'Remove');
+    rm.type = 'button';
+    head.appendChild(rm);
+    box.appendChild(head);
+
+    var row1 = el('div', 'row');
+    var fName = el('div', 'field');
+    var lName = el('label');
+    lName.setAttribute('for', 'r' + n + '-name');
+    lName.appendChild(document.createTextNode('Name '));
+    lName.appendChild(el('span', 'req', '*'));
+    var iName = document.createElement('input');
+    iName.type = 'text'; iName.id = 'r' + n + '-name'; iName.placeholder = 'First and last name';
+    iName.addEventListener('input', function () { iName.classList.remove('invalid'); });
+    fName.appendChild(lName); fName.appendChild(iName);
+    row1.appendChild(fName);
+
+    var fGender = el('div', 'field');
+    var lGender = el('label');
+    lGender.setAttribute('for', 'r' + n + '-gender');
+    lGender.appendChild(document.createTextNode('Gender '));
+    lGender.appendChild(el('span', 'req', '*'));
+    var sGender = document.createElement('select');
+    sGender.id = 'r' + n + '-gender';
+    sGender.appendChild(new Option('Select…', ''));
+    sGender.appendChild(new Option('Female', 'female'));
+    sGender.appendChild(new Option('Male', 'male'));
+    fGender.appendChild(lGender); fGender.appendChild(sGender);
+    row1.appendChild(fGender);
+
+    var fAge = el('div', 'field');
+    var lAge = el('label');
+    lAge.setAttribute('for', 'r' + n + '-age');
+    lAge.appendChild(document.createTextNode('Age '));
+    lAge.appendChild(el('span', 'req', '*'));
+    var ageRow = el('div', 'age-row');
+    var iAge = document.createElement('input');
+    iAge.type = 'number'; iAge.id = 'r' + n + '-age'; iAge.min = '0'; iAge.placeholder = '0';
+    var sUnit = document.createElement('select');
+    sUnit.id = 'r' + n + '-ageunit';
+    sUnit.appendChild(new Option('years old', 'years'));
+    sUnit.appendChild(new Option('months old', 'months'));
+    ageRow.appendChild(iAge); ageRow.appendChild(sUnit);
+    fAge.appendChild(lAge); fAge.appendChild(ageRow);
+    fAge.appendChild(el('div', 'hint', 'Fill this in first — it drives the sizing help.'));
+    row1.appendChild(fAge);
+    box.appendChild(row1);
+
+    var ctx = {
+      gender: function () { return sGender.value; },
+      ageYears: function () {
+        var v = parseFloat(iAge.value);
+        if (isNaN(v)) return null;
+        return sUnit.value === 'months' ? Math.floor(v / 12) : Math.floor(v);
+      }
+    };
+
+    var row2 = el('div', 'row');
+    var shirt = selectField('r' + n + '-shirt', 'Shirt size', 'shirt', ctx);
+    var pant = selectField('r' + n + '-pant', 'Pant size', 'pant', ctx);
+    row2.appendChild(shirt.wrap);
+    row2.appendChild(pant.wrap);
+    box.appendChild(row2);
+
+    var fInseam = el('div', 'field');
+    var lInseam = el('label', null, 'Pant inseam');
+    lInseam.setAttribute('for', 'r' + n + '-inseam');
+    var sInseam = document.createElement('select');
+    sInseam.id = 'r' + n + '-inseam';
+    sInseam.appendChild(new Option('Select…', ''));
+    MENS_INSEAM.forEach(function (v) { sInseam.appendChild(new Option(v + '"', v)); });
+    fInseam.appendChild(lInseam); fInseam.appendChild(sInseam);
+    fInseam.appendChild(el('div', 'hint', 'Men’s pants are sized waist × inseam.'));
+    fInseam.hidden = true;
+    var rowIn = el('div', 'row');
+    rowIn.appendChild(fInseam);
+    box.appendChild(rowIn);
+
+    pant.select.addEventListener('change', function () {
+      fInseam.hidden = !/waist/.test(pant.select.value);
+    });
+
+    var row3 = el('div', 'row');
+    var shoe = shoeField('r' + n + '-shoe', ctx);
+    row3.appendChild(shoe.wrap);
+    box.appendChild(row3);
+
+    // Diapers -- opt in, so an adult recipient isn't asked a pointless question.
+    var dWrap = el('div', 'field');
+    var dCheck = el('label', 'check');
+    var cDia = document.createElement('input');
+    cDia.type = 'checkbox'; cDia.id = 'r' + n + '-needdia';
+    dCheck.appendChild(cDia);
+    dCheck.appendChild(el('span', null, 'Also needs diapers or pull-ups'));
+    dWrap.appendChild(dCheck);
+
+    var dField = el('div', 'field sizefield');
+    var sDia = document.createElement('select');
+    sDia.id = 'r' + n + '-diaper';
+    dField.appendChild(labelRow('r' + n + '-diaper', 'Diaper size', function () {
+      openHelp('diaper', ctx.gender(), ctx.ageYears(), function (v) { setSelect(sDia, v); });
+    }));
+    dField.appendChild(sDia);
+    sDia.innerHTML = '';
+    sDia.appendChild(new Option('Select a diaper size…', ''));
+    var dg = document.createElement('optgroup');
+    dg.label = 'Diapers and pull-ups';
+    DIAPERS.forEach(function (d) { dg.appendChild(new Option(d.size, d.size)); });
+    sDia.appendChild(dg);
+    sDia.addEventListener('change', function () { sDia.classList.remove('invalid'); });
+    dField.hidden = true;
+    dWrap.appendChild(dField);
+    cDia.addEventListener('change', function () { dField.hidden = !cDia.checked; });
+    box.appendChild(dWrap);
+
+    var fNotes = el('div', 'field');
+    var lNotes = el('label', null, 'Items needed most / additional info');
+    lNotes.setAttribute('for', 'r' + n + '-notes');
+    var tNotes = document.createElement('textarea');
+    tNotes.id = 'r' + n + '-notes';
+    tNotes.placeholder = 'Winter coat, school shoes, anything else we should know…';
+    fNotes.appendChild(lNotes); fNotes.appendChild(tNotes);
+    box.appendChild(fNotes);
+
+    function refreshOptions() {
+      var g = sGender.value;
+      var keep = [shirt.select.value, pant.select.value];
+      fillSelect(shirt.select, shirtGroups(g), 'Select a shirt size…');
+      fillSelect(pant.select, pantGroups(g), 'Select a pant size…');
+      setSelect(shirt.select, keep[0]);
+      setSelect(pant.select, keep[1]);
+      fInseam.hidden = !/waist/.test(pant.select.value);
+      shoe.rerender();
+    }
+
+    sGender.addEventListener('change', function () {
+      sGender.classList.remove('invalid');
+      refreshOptions();
+    });
+    iAge.addEventListener('input', function () { iAge.classList.remove('invalid'); });
+    refreshOptions();
+
+    rm.addEventListener('click', function () { box.remove(); renumber(); });
+
+    box._check = function () {
+      var missing = [];
+      if (!iName.value.trim()) { iName.classList.add('invalid'); missing.push('name'); }
+      if (!sGender.value) { sGender.classList.add('invalid'); missing.push('gender'); }
+      if (!iAge.value) { iAge.classList.add('invalid'); missing.push('age'); }
+      if (!shirt.value()) { shirt.markBad(); missing.push('shirt size'); }
+      if (!pant.value()) { pant.markBad(); missing.push('pant size'); }
+      if (!shoe.value().length) { shoe.markBad(); missing.push('shoe size'); }
+      if (cDia.checked && !sDia.value) { sDia.classList.add('invalid'); missing.push('diaper size'); }
+      return missing;
+    };
+    box._name = function () { return iName.value.trim(); };
+
+    host.appendChild(box);
+    renumber();
+    return { box: box, name: iName, gender: sGender, age: iAge, shirt: shirt, pant: pant };
+  }
+
+  function renumber() {
+    var blocks = host.querySelectorAll('.recip');
+    Array.prototype.forEach.call(blocks, function (b, i) {
+      b.querySelector('.recip-num').textContent = String(i + 1);
+    });
+    countEl.textContent = blocks.length + ' of ' + MAX + ' recipients on this request';
+    document.getElementById('add-recip').disabled = blocks.length >= MAX;
+  }
+
+  document.getElementById('add-recip').addEventListener('click', addRecipient);
+
+  document.getElementById('submit-btn').addEventListener('click', function () {
+    errHost.innerHTML = '';
+    var problems = [];
+
+    [['req-name', 'your name'], ['req-phone', 'your phone number'], ['req-email', 'your email address']]
+      .forEach(function (pair) {
+        var f = document.getElementById(pair[0]);
+        if (!f.value.trim()) { f.classList.add('invalid'); problems.push('Requester: ' + pair[1]); }
+        else f.classList.remove('invalid');
+      });
+
+    Array.prototype.forEach.call(host.querySelectorAll('.recip'), function (b, i) {
+      var missing = b._check();
+      if (missing.length) {
+        problems.push('Recipient ' + (i + 1) + (b._name() ? ' (' + b._name() + ')' : '') + ': ' + missing.join(', '));
+      }
+    });
+
+    if (problems.length) {
+      var box = el('div', 'summary-err');
+      box.appendChild(el('strong', null, 'Still needed before this can be sent'));
+      var ul = document.createElement('ul');
+      problems.forEach(function (p) { ul.appendChild(el('li', null, p)); });
+      box.appendChild(ul);
+      errHost.appendChild(box);
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    var note = document.getElementById('notice');
+    note.innerHTML = '<strong>Mockup — nothing was submitted.</strong> In the real form this would save the request and email your confirmation.';
+    note.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  document.getElementById('req-date').value = new Date().toISOString().slice(0, 10);
+  var first = addRecipient();
+  first.name.value = 'Sample Recipient';
+  first.gender.value = 'female';
+  first.gender.dispatchEvent(new Event('change'));
+  first.age.value = '9';
+  addRecipient();
+})();
+</script>

@@ -1,0 +1,840 @@
+<title>Request Pick Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap">
+
+<style>
+  :root {
+    /* This page exists to be printed, so it is black on white everywhere.
+       No dark theme: paper has one appearance. */
+    --ground:      #FFFFFF;
+    --paper:       #FFFFFF;
+    --ink:         #000000;
+    --ink-soft:    #444444;
+    --rule:        #BBBBBB;
+    --rule-strong: #777777;
+    --accent:      #000000;
+    --accent-ink:  #FFFFFF;
+    --accent-soft: #F0F0F0;
+    --flag:        #000000;
+    --flag-soft:   #EFEFEF;
+    color-scheme: light;
+
+    --display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+    --body:    'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+    --mono:    'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Block flow, not flex. Chrome fragments flex and grid containers badly --
+     a flex column would not let two slip rows share a page with the header,
+     no matter what break rules were set on them. */
+  .page {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding-inline: 16px;
+    padding-block: 24px 64px;
+  }
+
+  .page > * + * { margin-top: 14px; }
+
+  /* ---------- screen-only toolbar ---------- */
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+
+  .toolbar strong { font-family: var(--display); color: var(--ink); }
+
+  .print-hint {
+    flex-basis: 100%;
+    background: var(--paper);
+    border: 1px solid var(--rule-strong);
+    padding: 10px 13px;
+    font-size: 0.88rem;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  .print-hint code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    background: var(--accent-soft);
+    padding: 1px 5px;
+  }
+
+  .print-btn {
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 600;
+    min-height: 44px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: 1px solid var(--accent);
+    padding: 10px 18px;
+    cursor: pointer;
+  }
+
+  /* ---------- request header ---------- */
+
+  .req-head {
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .stamp-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px 20px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 10px;
+  }
+
+  .org-mark {
+    font-family: var(--display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .reqno {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+
+  .logo {
+    width: 72px;
+    height: 72px;
+    flex: none;
+    display: block;
+  }
+
+  .brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .brand-lockup > .brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .who { display: flex; flex-direction: column; gap: 2px; }
+
+  .who-label {
+    font-family: var(--display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .who-name {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(2rem, 6vw, 2.9rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+
+  .who-org {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(1.15rem, 3.4vw, 1.55rem);
+    line-height: 1.15;
+    color: var(--accent);
+    margin: 0;
+  }
+
+  /* Two columns: who it is on the left, how to reach them and the counts on
+     the right. Stacked, this block ate a third of page one. */
+  .head-body {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .head-right { display: flex; flex-direction: column; gap: 8px; }
+
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 24px;
+  }
+
+  .contact div { display: flex; flex-direction: column; gap: 1px; }
+
+  .contact .k {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .contact .v {
+    font-family: var(--mono);
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .meta-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border: 1px solid var(--rule-strong);
+  }
+
+  .meta-strip div {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 6px 10px;
+    border-right: 1px solid var(--rule-strong);
+  }
+
+  .meta-strip .v { overflow-wrap: anywhere; }
+
+  .meta-strip div:last-child { border-right: none; }
+
+  .meta-strip .k {
+    font-family: var(--display);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display: block;
+  }
+
+  .meta-strip .v {
+    font-family: var(--mono);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .meta-strip .v.big { font-size: 1.5rem; }
+
+  .prayer {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+  }
+
+  .prayer .k {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .prayer p { margin: 3px 0 0; font-size: 0.95rem; font-style: italic; }
+
+  /* ---------- recipient slips ---------- */
+
+  .slip {
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* Content sits at the top; the slack from an equalised row falls below it. */
+  .slip-body > :last-child { margin-bottom: 0; }
+
+  .slip-tag {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px 20px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: 10px 14px;
+    font-family: var(--display);
+    font-weight: 600;
+  }
+
+  .slip-tag .trace {
+    font-weight: 800;
+    font-size: clamp(1.05rem, 3vw, 1.3rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .slip-tag .trace .org {
+    display: block;
+    font-weight: 600;
+    font-size: 0.88em;
+    opacity: 0.92;
+  }
+
+  .slip-tag .of {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .slip-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  .slip-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 12px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 5px;
+  }
+
+  .slip-name h3 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(1.4rem, 4vw, 1.85rem);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0;
+  }
+
+  .who-is {
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sizes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px;
+    background: var(--rule-strong);
+    border: 1px solid var(--rule-strong);
+  }
+
+  .size-cell {
+    background: var(--paper);
+    padding: 8px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+  }
+
+  .size-cell .k {
+    font-family: var(--display);
+    line-height: 1.25;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .size-cell .v {
+    font-family: var(--mono);
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+
+  .size-cell .v.none { font-family: var(--body); font-size: 1rem; font-weight: 400; color: var(--ink-soft); font-style: italic; }
+  .size-cell .sub { font-size: 0.76rem; color: var(--ink-soft); }
+
+  .alert {
+    background: var(--flag-soft);
+    border-left: 3px solid var(--flag);
+    padding: 4px 10px;
+    font-size: 0.88rem;
+  }
+
+  .alert strong { font-family: var(--display); color: var(--flag); }
+
+  .notes .k {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .notes p { margin: 2px 0 0; font-size: 0.95rem; }
+
+
+  .cutline {
+    display: none;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+  }
+
+  /* ---------- print ---------- */
+
+  /* ---------- the printed page ---------- */
+
+body { background: #fff; font-size: 10pt; }
+.page { gap: 14px; }
+
+.req-head { break-inside: avoid; padding: 12px 14px; gap: 9px; }
+.who-name { font-size: 24pt; }
+.who-org { font-size: 14pt; }
+.contact .v { font-size: 11.5pt; }
+.meta-strip .v { font-size: 10.5pt; }
+.meta-strip .v.big { font-size: 12pt; }
+.meta-strip div { padding: 4px 9px; }
+.prayer { padding: 5px 10px; }
+.prayer p { font-size: 9pt; }
+.stamp-row { padding-bottom: 7px; }
+.logo { width: 46px; height: 46px; }
+
+    /* Two slips across a letter page. Cut lines are dropped -- in a grid each
+       would claim its own cell, and the slip borders already guide the scissors. */
+/* Slips are paired into rows rather than laid out as one grid. Chrome does
+   not honour break-inside on grid items, so a grid let slips split across a
+   page break; a plain block row is respected. */
+.slips { display: block; }
+
+/* Pagination is decided here, not left to the browser: page one carries the
+   request header plus two rows (4 slips), every page after it carries three
+   rows (6 slips). Fixed row heights keep those counts fitting a letter page. */
+.sheet-page {
+  display: block;
+  break-after: page;
+  page-break-after: always;
+}
+
+.sheet-page > * + * { margin-top: 12px; }
+
+.sheet-page:last-child { break-after: auto; page-break-after: auto; }
+
+.slip-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Half width each, so a row holding a single slip keeps the same proportions
+   as a full one. Stretch equalises the pair; the floor matches row to row. */
+.slip-row > .slip {
+  flex: 0 1 calc(50% - 6px);
+  min-width: 0;
+  min-height: 2.5in;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.cutline { display: none; }
+
+    /* Ink economy: nothing prints as a solid fill. The requester bar, the
+       prayer note and the size-warning callout drop their backgrounds and hold
+       their emphasis with weight and rules instead. */
+.slip-tag {
+      background: none;
+      color: #000;
+      border-bottom: 1.5px solid #000;
+      padding: 7px 10px 5px;
+    }
+
+.prayer, .alert, .size-cell, .sizes { background: none; }
+.prayer { border-left: 2px solid #000; }
+.alert { border-left: 2px solid #000; }
+.alert strong { color: #000; }
+.prayer .k { color: #000; }
+
+    /* The size grid drew its dividers as a coloured backdrop showing through
+       1px gaps; hairline borders on the cells use far less ink. */
+.sizes { border: 1px solid #000; gap: 0; grid-template-columns: 1fr 1fr; }
+.size-cell { border-right: 1px solid #999; border-bottom: 1px solid #999; padding: 4px 8px; }
+
+.logo { -webkit-print-color-adjust: exact; print-color-adjust: exact; width: 58px; height: 58px; }
+
+.slip-body { padding: 8px 11px; gap: 6px; }
+.slip-tag .trace { font-size: 11pt; }
+.slip-tag .of { font-size: 8.5pt; }
+.slip-name h3 { font-size: 13.5pt; }
+.who-is { font-size: 9.5pt; }
+.size-cell .v { font-size: 13pt; }
+.size-cell .v.none { font-size: 9.5pt; }
+.size-cell .sub { font-size: 7pt; line-height: 1.2; }
+.notes p, .alert { font-size: 9pt; }
+
+  /* On screen the sheet needs gutters; on paper @page supplies the margins. */
+  .page { max-width: 52rem; margin: 0 auto; padding-block: 16px 40px; padding-inline: 16px; }
+
+
+  /* Screen and paper are the same design now, so printing only has to supply
+     the page margins and drop the screen-only toolbar and gutters. Nothing
+     here may restate layout -- a stale copy of it is what turned the paired
+     rows into four columns. */
+  @media print {
+    @page { margin: 0.5in; }
+    .toolbar { display: none; }
+    .page { max-width: none; margin: 0; padding: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="page">
+
+  <div class="toolbar">
+    <strong>Mockup — sample request.</strong>
+    <span>Shown exactly as it prints. Each recipient slip carries the requester’s name and organization so it stays traceable if the slips get separated on the sorting table.</span>
+    <button type="button" class="print-btn" id="print-btn">Print this sheet</button>
+    <div class="print-hint" id="print-hint" hidden>
+      This page is displayed inside a frame, and browsers block printing from
+      there &mdash; so the button above can&rsquo;t open the print dialog. To print:
+      open <code>pick-sheet-mockup.html</code> directly in your browser
+      (double-click it, or <code>File &rsaquo; Open</code>), then press
+      <strong>&#8984;P</strong> / <strong>Ctrl&#8202;+&#8202;P</strong>.
+    </div>
+  </div>
+
+
+  <div class="slips">
+
+    <div class="sheet-page">
+      <section class="req-head">
+        <div class="stamp-row">
+          <div class="brand-lockup">
+            <img class="logo" alt="Clarksburg Closet" src="data:image/png;base64,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">
+            <div class="org-mark">Clothing Request</div>
+          </div>
+          <div class="reqno">REQUEST #2026-0413</div>
+        </div>
+
+        <div class="who">
+          <div class="who-label">Requested by</div>
+          <h1 class="who-name">Maria Delgado</h1>
+          <p class="who-org">Montgomery County Crisis Center</p>
+        </div>
+
+        <div class="meta-strip">
+          <div><span class="k">Phone</span><span class="v">(301) 555-0142</span></div>
+          <div><span class="k">Email</span><span class="v">mdelgado@mccrisis.org</span></div>
+          <div><span class="k">Received</span><span class="v">Sep 10, 2026</span></div>
+          <div><span class="k">Recipients</span><span class="v big">10</span></div>
+        </div>
+
+        <div class="prayer">
+          <span class="k">Prayer request</span>
+          <p>“For steady work and a warm winter for the children.”</p>
+        </div>
+      </section>
+    <div class="slip-row">
+      <!-- Recipient 1 -->
+      <article class="slip">
+        <div class="slip-tag">
+          <span class="trace">Maria Delgado<span class="org">Montgomery County Crisis Center</span></span>
+          <span class="of">#2026-0413 &middot; 1 of 10</span>
+        </div>
+        <div class="slip-body">
+          <div class="slip-name">
+            <h3>Aaliyah Carter</h3>
+            <span class="who-is">Girl &middot; 9 years</span>
+          </div>
+          <div class="sizes">
+            <div class="size-cell"><span class="k">Shirt</span><span class="v">10</span><span class="sub">Girls’</span></div>
+            <div class="size-cell"><span class="k">Pants</span><span class="v">10</span><span class="sub">Girls’</span></div>
+            <div class="size-cell"><span class="k">Shoes</span><span class="v">3Y · 3½Y</span><span class="sub">Either fits</span></div>
+            <div class="size-cell"><span class="k">Diapers</span><span class="v none">Not needed</span></div>
+          </div>
+          <div class="notes">
+            <span class="k">Items needed most</span>
+            <p>Winter coat and school shoes. Long sleeves preferred.</p>
+          </div>
+        </div>
+      </article>
+      <!-- Recipient 2 -->
+      <article class="slip">
+        <div class="slip-tag">
+          <span class="trace">Maria Delgado<span class="org">Montgomery County Crisis Center</span></span>
+          <span class="of">#2026-0413 &middot; 2 of 10</span>
+        </div>
+        <div class="slip-body">
+          <div class="slip-name">
+            <h3>Marcus Carter</h3>
+            <span class="who-is">Boy &middot; 14 years</span>
+          </div>
+          <div class="sizes">
+            <div class="size-cell"><span class="k">Shirt</span><span class="v">16</span><span class="sub">Boys’</span></div>
+            <div class="size-cell"><span class="k">Pants</span><span class="v">30 × 30</span><span class="sub">Men’s waist × inseam</span></div>
+            <div class="size-cell"><span class="k">Shoes</span><span class="v">8 · 8½</span><span class="sub">Men’s — either fits</span></div>
+            <div class="size-cell"><span class="k">Diapers</span><span class="v none">Not needed</span></div>
+          </div>
+          <div class="notes">
+            <span class="k">Items needed most</span>
+            <p>Jeans and sneakers for school. No logos if possible.</p>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div class="slip-row">
+      <!-- Recipient 3 -->
+      <article class="slip">
+        <div class="slip-tag">
+          <span class="trace">Maria Delgado<span class="org">Montgomery County Crisis Center</span></span>
+          <span class="of">#2026-0413 &middot; 3 of 10</span>
+        </div>
+        <div class="slip-body">
+          <div class="slip-name">
+            <h3>Nia Carter</h3>
+            <span class="who-is">Girl &middot; 12 years</span>
+          </div>
+          <div class="sizes">
+            <div class="size-cell"><span class="k">Shirt</span><span class="v">S</span><span class="sub">Women’s</span></div>
+            <div class="size-cell"><span class="k">Pants</span><span class="v">7</span><span class="sub">Juniors (odd sizes)</span></div>
+            <div class="size-cell"><span class="k">Shoes</span><span class="v">6 · 6½</span><span class="sub">Women’s — either fits</span></div>
+            <div class="size-cell"><span class="k">Diapers</span><span class="v none">Not needed</span></div>
+          </div>
+          <div class="alert">
+            <strong>Adult sizes for a 12-year-old.</strong> Confirmed by the requester — please pick styles suitable for her age, not adult cuts.
+          </div>
+          <div class="notes">
+            <span class="k">Items needed most</span>
+            <p>Everyday tops. She is tall for her age.</p>
+          </div>
+        </div>
+      </article>
+      <!-- Recipient 4 -->
+      <article class="slip">
+        <div class="slip-tag">
+          <span class="trace">Maria Delgado<span class="org">Montgomery County Crisis Center</span></span>
+          <span class="of">#2026-0413 &middot; 4 of 10</span>
+        </div>
+        <div class="slip-body">
+          <div class="slip-name">
+            <h3>Jordan Carter</h3>
+            <span class="who-is">Boy &middot; 8 months</span>
+          </div>
+          <div class="sizes">
+            <div class="size-cell"><span class="k">Shirt</span><span class="v">6–9M</span><span class="sub">Baby</span></div>
+            <div class="size-cell"><span class="k">Pants</span><span class="v">6–9M</span><span class="sub">Baby</span></div>
+            <div class="size-cell"><span class="k">Shoes</span><span class="v none">Not needed</span></div>
+            <div class="size-cell"><span class="k">Diapers</span><span class="v">Size 3</span><span class="sub">16–28 lb</span></div>
+          </div>
+          <div class="notes">
+            <span class="k">Items needed most</span>
+            <p>Sleepers and a warm bunting. Wipes if any are available.</p>
+          </div>
+        </div>
+      </article>
+    </div>
+    </div>
+
+    <div class="sheet-page">
+    <div class="slip-row">
+      <!-- Recipient 5 -->
+      <article class="slip">
+        <div class="slip-tag">
+          <span class="trace">Maria Delgado<span class="org">Montgomery County Crisis Center</span></span>
+          <span class="of">#2026-0413 &middot; 5 of 10</span>
+        </div>
+        <div class="slip-body">
+          <div class="slip-name">
+            <h3>Yolanda Carter</h3>
+            <span class="who-is">Woman &middot; 38 years</span>
+          </div>
+          <div class="sizes">
+            <div class="size-cell"><span class="k">Shirt</span><span class="v">L</span><span class="sub">Women’s</span></div>
+            <div class="size-cell"><span class="k">Pants</span><span class="v">12</span><span class="sub">Women’s</span></div>
+            <div class="size-cell"><span class="k">Shoes</span><span class="v">8 · 8½</span><span class="sub">Women’s — either fits</span></div>
+            <div class="size-cell"><span class="k">Diapers</span><span class="v none">Not needed</span></div>
+          </div>
+          <div class="notes">
+            <span class="k">Items needed most</span>
+            <p>Something suitable for job interviews, and a warm coat. Mother of the four children above.</p>
+          </div>
+        </div>
+      </article>
+      <!-- Recipient 6 -->
+      <article class="slip">
+        <div class="slip-tag">
+          <span class="trace">Maria Delgado<span class="org">Montgomery County Crisis Center</span></span>
+          <span class="of">#2026-0413 &middot; 6 of 10</span>
+        </div>
+        <div class="slip-body">
+          <div class="slip-name">
+            <h3>Grace Okafor</h3>
+            <span class="who-is">Woman &middot; 34 years</span>
+          </div>
+          <div class="sizes">
+          <div class="size-cell"><span class="k">Shirt</span><span class="v">M</span><span class="sub">Women&rsquo;s</span></div>
+          <div class="size-cell"><span class="k">Pants</span><span class="v">8</span><span class="sub">Women&rsquo;s</span></div>
+          <div class="size-cell"><span class="k">Shoes</span><span class="v">7 &middot; 7&frac12;</span><span class="sub">Women&rsquo;s</span></div>
+          <div class="size-cell"><span class="k">Diapers</span><span class="v none">Not needed</span></div>
+          </div>
+          <div class="notes">
+            <span class="k">Items needed most</span>
+            <p>Work clothes for a new job. Second household on this request.</p>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div class="slip-row">
+      <!-- Recipient 7 -->
+      <article class="slip">
+        <div class="slip-tag">
+          <span class="trace">Maria Delgado<span class="org">Montgomery County Crisis Center</span></span>
+          <span class="of">#2026-0413 &middot; 7 of 10</span>
+        </div>
+        <div class="slip-body">
+          <div class="slip-name">
+            <h3>Emeka Okafor</h3>
+            <span class="who-is">Boy &middot; 15 years</span>
+          </div>
+          <div class="sizes">
+          <div class="size-cell"><span class="k">Shirt</span><span class="v">18</span><span class="sub">Boys&rsquo;</span></div>
+          <div class="size-cell"><span class="k">Pants</span><span class="v">30 &times; 32</span><span class="sub">Men&rsquo;s</span></div>
+          <div class="size-cell"><span class="k">Shoes</span><span class="v">9 &middot; 9&frac12;</span><span class="sub">Men&rsquo;s</span></div>
+          <div class="size-cell"><span class="k">Diapers</span><span class="v none">Not needed</span></div>
+          </div>
+          <div class="notes">
+            <span class="k">Items needed most</span>
+            <p>School uniform trousers and a winter coat.</p>
+          </div>
+        </div>
+      </article>
+      <!-- Recipient 8 -->
+      <article class="slip">
+        <div class="slip-tag">
+          <span class="trace">Maria Delgado<span class="org">Montgomery County Crisis Center</span></span>
+          <span class="of">#2026-0413 &middot; 8 of 10</span>
+        </div>
+        <div class="slip-body">
+          <div class="slip-name">
+            <h3>Chidi Okafor</h3>
+            <span class="who-is">Boy &middot; 11 years</span>
+          </div>
+          <div class="sizes">
+          <div class="size-cell"><span class="k">Shirt</span><span class="v">12</span><span class="sub">Boys&rsquo;</span></div>
+          <div class="size-cell"><span class="k">Pants</span><span class="v">12</span><span class="sub">Boys&rsquo;</span></div>
+          <div class="size-cell"><span class="k">Shoes</span><span class="v">4Y</span></div>
+          <div class="size-cell"><span class="k">Diapers</span><span class="v none">Not needed</span></div>
+          </div>
+          <div class="notes">
+            <span class="k">Items needed most</span>
+            <p>Sneakers, any colour. Growing quickly.</p>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div class="slip-row">
+      <!-- Recipient 9 -->
+      <article class="slip">
+        <div class="slip-tag">
+          <span class="trace">Maria Delgado<span class="org">Montgomery County Crisis Center</span></span>
+          <span class="of">#2026-0413 &middot; 9 of 10</span>
+        </div>
+        <div class="slip-body">
+          <div class="slip-name">
+            <h3>Ada Okafor</h3>
+            <span class="who-is">Girl &middot; 6 years</span>
+          </div>
+          <div class="sizes">
+          <div class="size-cell"><span class="k">Shirt</span><span class="v">6</span><span class="sub">Girls&rsquo;</span></div>
+          <div class="size-cell"><span class="k">Pants</span><span class="v">6</span><span class="sub">Girls&rsquo;</span></div>
+          <div class="size-cell"><span class="k">Shoes</span><span class="v">12C &middot; 12&frac12;C</span><span class="sub">Either fits</span></div>
+          <div class="size-cell"><span class="k">Diapers</span><span class="v none">Not needed</span></div>
+          </div>
+          <div class="notes">
+            <span class="k">Items needed most</span>
+            <p>Warm layers and a raincoat.</p>
+          </div>
+        </div>
+      </article>
+      <!-- Recipient 10 -->
+      <article class="slip">
+        <div class="slip-tag">
+          <span class="trace">Maria Delgado<span class="org">Montgomery County Crisis Center</span></span>
+          <span class="of">#2026-0413 &middot; 10 of 10</span>
+        </div>
+        <div class="slip-body">
+          <div class="slip-name">
+            <h3>Ngozi Okafor</h3>
+            <span class="who-is">Girl &middot; 14 months</span>
+          </div>
+          <div class="sizes">
+          <div class="size-cell"><span class="k">Shirt</span><span class="v">12&ndash;18M</span><span class="sub">Baby</span></div>
+          <div class="size-cell"><span class="k">Pants</span><span class="v">12&ndash;18M</span><span class="sub">Baby</span></div>
+          <div class="size-cell"><span class="k">Shoes</span><span class="v">5C</span></div>
+          <div class="size-cell"><span class="k">Diapers</span><span class="v">Size 4</span><span class="sub">22&ndash;37 lb</span></div>
+          </div>
+          <div class="notes">
+            <span class="k">Items needed most</span>
+            <p>Sleepers, and wipes if any are available.</p>
+          </div>
+        </div>
+      </article>
+    </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('print-btn');
+  var hint = document.getElementById('print-hint');
+
+  // Browsers block window.print() from a sandboxed iframe, which is how this
+  // page is served when it's viewed as a published artifact. Rather than a
+  // button that silently does nothing, say so and give the way that works.
+  var framed = window.self !== window.top;
+
+  if (framed) {
+    btn.textContent = 'How to print this';
+    btn.addEventListener('click', function () {
+      hint.hidden = !hint.hidden;
+    });
+  } else {
+    btn.addEventListener('click', function () {
+      window.print();
+    });
+  }
+})();
+</script>
