@@ -16,7 +16,7 @@ Still open, in rough priority order:
 
 1. **Pick the stack and stand up the database.** The mockups imply a normal web app (the PDF flow needs an http origin, not `file://`). `math-club-v2` in the same workspace is a working reference for the pattern the user already runs: Neon Postgres + Drizzle, schema in one `db/schema.ts`, `drizzle-kit push` with no migration files.
 2. **Spanish version of the request form** — planned, does not exist.
-3. **Who filled it** — nothing currently records which volunteer did the work.
+3. **Volunteer identity** — nothing records *who* did anything: who filled a request, or who wrote a note. One decision covers both. Cheap to capture at the click, impossible to reconstruct later, so worth settling before real data accumulates.
 4. The public website still advertises a 4-week turnaround; the new form does not.
 
 ## About Clarksburg Closet
@@ -153,7 +153,7 @@ Static, self-contained HTML (embedded CSS + vanilla JS, no build tools) for desi
 | File | What it is |
 | --- | --- |
 | `request-form-mockup.html` | The requester-facing form. Sizing-help dialogs, "Not needed", multi-select shoes, opt-in diapers, adult-size confirmation, submit validation. |
-| `dashboard-mockup.html` | The volunteer queue. Filter/search, expand to review sizes, crisis flag, generate the pick-sheet PDF, mark filled, decline with reason. |
+| `dashboard-mockup.html` | The volunteer queue. Filter/search, expand to review sizes, crisis flag, volunteer notes, generate the pick-sheet PDF, mark filled, decline with reason. |
 | `report-mockup.html` | Monthly and year-to-date reporting on a **1 July - 30 June fiscal year**. Headline tiles, people clothed by month, requests received vs filled, referring agencies, fiscal-year and month pickers, chart/table toggle. |
 | `pick-sheet-mockup.html` | Visual reference for the printed slip layout. **Superseded as the print path** by the dashboard's PDF generator; kept as the design reference. |
 
