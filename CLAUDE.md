@@ -16,9 +16,8 @@ Still open, in rough priority order:
 
 1. **Pick the stack and stand up the database.** The mockups imply a normal web app (the PDF flow needs an http origin, not `file://`). `math-club-v2` in the same workspace is a working reference for the pattern the user already runs: Neon Postgres + Drizzle, schema in one `db/schema.ts`, `drizzle-kit push` with no migration files.
 2. **Spanish version of the request form** — planned, does not exist.
-3. **Partial fulfilment** — decide whether status belongs on the recipient rather than the request.
-4. **Who filled it** — nothing currently records which volunteer did the work.
-5. The public website still advertises a 4-week turnaround; the new form does not.
+3. **Who filled it** — nothing currently records which volunteer did the work.
+4. The public website still advertises a 4-week turnaround; the new form does not.
 
 ## About Clarksburg Closet
 
@@ -126,7 +125,7 @@ Volunteer-set, from the queue: **Not started → Printed → Filled**, plus **De
 
 - **Crisis** is set by volunteers, never by the requester, and never visible on the request form. It lives on the request, not the requester — an agency that sends one urgent case is not permanently urgent. It moves the request to the top of the queue and prints on the sheet.
 - **Declining requires a reason** — the requester will be told, and "why was I turned down?" needs an answer months later. Reasons: already received this season, duplicate, outside the area served, could not reach the requester, items not available, other.
-- **Partial fulfilment is not modelled.** A request is filled or it is not. If volunteers routinely fill some recipients and wait on stock for others, status belongs on the recipient instead — still open.
+- **Partial fulfilment does not exist — confirmed.** Orders are never filled partially, so status lives on the **request**, not on each recipient. A request is filled or it is not. Do not add a per-recipient status column.
 - **Nothing records which volunteer did the work.** Deliberate, but cheap to add at the click and impossible to reconstruct later.
 
 ### Language / localization
