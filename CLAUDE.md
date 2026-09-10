@@ -98,7 +98,7 @@ Shoe size is **multi-select** — a requester ticks every size that would fit (e
 
 - **Agency** — organization name (optional; null for individuals self-referring). Most requests come through agencies, each with multiple agents/case workers. Use a type-ahead matched against existing agencies (with "add new" fallback) to avoid name fragmentation ("Mercy Health" vs "Mercy Health Svc").
 - **Requester** (agent) — name, phone, email, optionally linked to an Agency. Multiple requesters can belong to the same agency.
-- **Request** — one submission: date, requester, recipients, status, crisis flag, prayer request (request-level, not per-recipient).
+- **Request** — one submission: date, requester, recipients, status, crisis flag, prayer request, and **volunteer notes** (all request-level, not per-recipient).
 - **Recipient** — per-request entry: name, gender, age (number + unit: years or months), shirt size, pant size, shoe sizes (**multiple**), diaper size (nullable), items needed/additional info. No persistent cross-request recipient/household record for now.
 
 ### Schema notes for whenever the DB gets built
@@ -118,6 +118,20 @@ For each match, show date + recipient names, each row expandable to the full pri
 ### Eligibility (once-per-season)
 
 Not enforced by the system. The "last order" display gives volunteers what they need to judge it themselves. When they do decline on those grounds, "Already received clothing this season" is one of the decline reasons — the judgment is recorded, not automated.
+
+### Volunteer notes
+
+Each request carries a free-text **notes** field that volunteers write and edit — the closet's own record, distinct from the two other free-text fields it must never be confused with:
+
+| Field | Written by | Level |
+| --- | --- | --- |
+| Items needed most | the requester | recipient |
+| Prayer request | the requester | request |
+| **Volunteer notes** | **the closet** | **request** |
+
+Notes can be added at any point, including after a request is filled or declined, and they **print on the pick sheet** above the prayer request — a note like "Isaiah is between a 10C and 10½C, take both" is an instruction to whoever is holding the sheet. Two lines print; the rest stays on screen.
+
+Notes are searchable from the queue. The field stores when it was last updated but **not who wrote it** — see the open question about recording which volunteer did the work; the same answer covers both.
 
 ### Status / fulfilment
 
@@ -182,6 +196,7 @@ Selecting a month does not reduce the charts to one bar; it highlights that mont
 `report-mockup.html` draws its charts as inline SVG — no charting library. Two rules worth keeping if more charts are added:
 
 - **The series colours are validated, not chosen by eye.** `--s1: #2F74AD` (blue) and `--s2: #7BA33C` (green) are brand-adjacent steps that pass the lightness band, chroma floor, colour-blind separation, and surface-contrast checks in **both** light and dark, which is why one pair serves both themes. The brand navy `#00467F` itself **fails** as a chart fill — too dark for the lightness band. Re-validate before substituting anything.
+- **Keep non-ASCII characters out of `<script>` blocks.** Use `\u00b7`, `\u00d7`, `\u00bd` rather than the literal `·`, `×`, `½`. A published artifact gets a charset from its wrapper, but a plain local server does not, and the characters arrive as mojibake (`Â·`, `10Â½`). This bit twice.
 - Identity is never colour alone: every chart with two series carries a legend, stacked totals are directly labelled, and the **chart/table toggle** gives the same figures as text.
 
 ### Running the mockups

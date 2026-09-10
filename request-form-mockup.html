@@ -649,7 +649,7 @@
     var out = [];
     for (var i = from; i <= to; i++) {
       out.push(i + suffix);
-      if (i < to || topHasHalf) out.push(i + '½' + suffix);
+      if (i < to || topHasHalf) out.push(i + '\u00BD' + suffix);
     }
     return out;
   }
@@ -848,7 +848,7 @@
 
     var out = el('div', 'est-out empty', ageYears != null
       ? 'Rows matching age ' + ageYears + ' are highlighted below. Add height or weight to narrow it down.'
-      : 'Enter a height or weight, or fill in the age on the form, and we’ll highlight the closest sizes.');
+      : 'Enter a height or weight, or fill in the age on the form, and we\u2019ll highlight the closest sizes.');
     est.appendChild(out);
     dlgBody.appendChild(est);
 
@@ -910,7 +910,7 @@
       if (!hits.length) {
         out.className = 'est-out empty';
         out.textContent = (h != null || w != null)
-          ? 'No typical size matches those numbers exactly — scan the charts below for the closest row.'
+          ? 'No typical size matches those numbers exactly \u2014 scan the charts below for the closest row.'
           : 'Enter a height or weight to highlight the closest sizes.';
       } else {
         out.className = 'est-out';
@@ -944,7 +944,7 @@
     l.appendChild(el('span', 'req', '*'));
     lr.appendChild(l);
     if (onHelp) {
-      var btn = el('button', 'info-btn', 'ⓘ Sizing help');
+      var btn = el('button', 'info-btn', '\u24D8 Sizing help');
       btn.type = 'button';
       btn.addEventListener('click', onHelp);
       lr.appendChild(btn);
@@ -972,7 +972,7 @@
       var adult = ADULT_GROUPS.indexOf(grp) !== -1;
       if (adult && age != null && age < 13) {
         note.hidden = false;
-        note.textContent = 'That’s an adult size for a ' + age + '-year-old. If it’s right, leave it — knowing helps us pick the right style.';
+        note.textContent = 'That\u2019s an adult size for a ' + age + '-year-old. If it\u2019s right, leave it \u2014 knowing helps us pick the right style.';
       } else {
         note.hidden = true;
       }
@@ -991,7 +991,7 @@
     det.className = 'picker';
     var sum = document.createElement('summary');
     sum.id = idBase;
-    var sumTxt = el('span', 'summary-empty', 'Choose one or more sizes…');
+    var sumTxt = el('span', 'summary-empty', 'Choose one or more sizes\u2026');
     sum.appendChild(sumTxt);
     det.appendChild(sum);
     var body = el('div', 'picker-body');
@@ -1001,7 +1001,7 @@
       openHelp('shoe', ctx.gender(), ctx.ageYears(), function (v) { toggle(v, true); });
     }));
     wrap.appendChild(det);
-    wrap.appendChild(el('div', 'hint', 'Tick every size that would fit — for example 5 and 5½.'));
+    wrap.appendChild(el('div', 'hint', 'Tick every size that would fit \u2014 for example 5 and 5\u00BD.'));
 
     function render() {
       body.innerHTML = '';
@@ -1042,7 +1042,7 @@
       det.classList.remove('invalid');
       if (!chosen.length) {
         sumTxt.className = 'summary-empty';
-        sumTxt.textContent = 'Choose one or more sizes…';
+        sumTxt.textContent = 'Choose one or more sizes\u2026';
       } else if (chosen[0] === 'none') {
         sumTxt.className = '';
         sumTxt.textContent = 'Not needed';
@@ -1097,7 +1097,7 @@
     lGender.appendChild(el('span', 'req', '*'));
     var sGender = document.createElement('select');
     sGender.id = 'r' + n + '-gender';
-    sGender.appendChild(new Option('Select…', ''));
+    sGender.appendChild(new Option('Select\u2026', ''));
     sGender.appendChild(new Option('Female', 'female'));
     sGender.appendChild(new Option('Male', 'male'));
     fGender.appendChild(lGender); fGender.appendChild(sGender);
@@ -1117,7 +1117,7 @@
     sUnit.appendChild(new Option('months old', 'months'));
     ageRow.appendChild(iAge); ageRow.appendChild(sUnit);
     fAge.appendChild(lAge); fAge.appendChild(ageRow);
-    fAge.appendChild(el('div', 'hint', 'Fill this in first — it drives the sizing help.'));
+    fAge.appendChild(el('div', 'hint', 'Fill this in first \u2014 it drives the sizing help.'));
     row1.appendChild(fAge);
     box.appendChild(row1);
 
@@ -1142,10 +1142,10 @@
     lInseam.setAttribute('for', 'r' + n + '-inseam');
     var sInseam = document.createElement('select');
     sInseam.id = 'r' + n + '-inseam';
-    sInseam.appendChild(new Option('Select…', ''));
+    sInseam.appendChild(new Option('Select\u2026', ''));
     MENS_INSEAM.forEach(function (v) { sInseam.appendChild(new Option(v + '"', v)); });
     fInseam.appendChild(lInseam); fInseam.appendChild(sInseam);
-    fInseam.appendChild(el('div', 'hint', 'Men’s pants are sized waist × inseam.'));
+    fInseam.appendChild(el('div', 'hint', 'Men\u2019s pants are sized waist \u00D7 inseam.'));
     fInseam.hidden = true;
     var rowIn = el('div', 'row');
     rowIn.appendChild(fInseam);
@@ -1177,7 +1177,7 @@
     }));
     dField.appendChild(sDia);
     sDia.innerHTML = '';
-    sDia.appendChild(new Option('Select a diaper size…', ''));
+    sDia.appendChild(new Option('Select a diaper size\u2026', ''));
     var dg = document.createElement('optgroup');
     dg.label = 'Diapers and pull-ups';
     DIAPERS.forEach(function (d) { dg.appendChild(new Option(d.size, d.size)); });
@@ -1193,15 +1193,15 @@
     lNotes.setAttribute('for', 'r' + n + '-notes');
     var tNotes = document.createElement('textarea');
     tNotes.id = 'r' + n + '-notes';
-    tNotes.placeholder = 'Winter coat, school shoes, anything else we should know…';
+    tNotes.placeholder = 'Winter coat, school shoes, anything else we should know\u2026';
     fNotes.appendChild(lNotes); fNotes.appendChild(tNotes);
     box.appendChild(fNotes);
 
     function refreshOptions() {
       var g = sGender.value;
       var keep = [shirt.select.value, pant.select.value];
-      fillSelect(shirt.select, shirtGroups(g), 'Select a shirt size…');
-      fillSelect(pant.select, pantGroups(g), 'Select a pant size…');
+      fillSelect(shirt.select, shirtGroups(g), 'Select a shirt size\u2026');
+      fillSelect(pant.select, pantGroups(g), 'Select a pant size\u2026');
       setSelect(shirt.select, keep[0]);
       setSelect(pant.select, keep[1]);
       fInseam.hidden = !/waist/.test(pant.select.value);
@@ -1276,7 +1276,7 @@
     }
 
     var note = document.getElementById('notice');
-    note.innerHTML = '<strong>Mockup — nothing was submitted.</strong> In the real form this would save the request and email your confirmation.';
+    note.innerHTML = '<strong>Mockup \u2014 nothing was submitted.</strong> In the real form this would save the request and email your confirmation.';
     note.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 

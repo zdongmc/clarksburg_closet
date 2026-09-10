@@ -417,6 +417,52 @@
 
   .reason-line { font-size: 0.85rem; color: var(--red); }
 
+  /* ---------- volunteer notes ---------- */
+
+  /* Notes are the closet's own record, not something the requester wrote, so
+     they sit apart from the recipient detail and read as an internal margin. */
+  .notes-box {
+    border-top: 1px solid var(--rule);
+    background: var(--sunk);
+    padding: 11px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .notes-box .cap {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .notes-box .cap .when { font-family: var(--body); letter-spacing: 0; text-transform: none; font-weight: 400; font-size: 0.8rem; }
+
+  .notes-text { font-size: 0.95rem; white-space: pre-wrap; }
+  .notes-text.empty { color: var(--ink-soft); font-style: italic; }
+
+  .notes-box textarea {
+    font-family: var(--body);
+    font-size: 1rem;
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--rule-strong);
+    padding: 10px 11px;
+    width: 100%;
+    min-height: 5rem;
+    resize: vertical;
+    line-height: 1.45;
+  }
+
+  .notes-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
   /* ---------- expanded recipients ---------- */
 
   .req-detail {
@@ -589,12 +635,12 @@
       received: '2026-09-10', status: 'new',
       prayer: 'For steady work and a warm winter for the children.',
       people: [
-        { n: 'Aaliyah Carter', a: 'Girl · 9 yr', shirt: '10 · Girls’', pant: '10 · Girls’', shoe: '3Y · 3½Y', dia: null },
-        { n: 'Marcus Carter', a: 'Boy · 14 yr', shirt: '16 · Boys’', pant: '30 × 30 · Men’s', shoe: '8 · 8½', dia: null },
-        { n: 'Nia Carter', a: 'Girl · 12 yr', shirt: 'S · Women’s', pant: '7 · Juniors', shoe: '6 · 6½', dia: null,
-          flag: 'Adult sizes for a 12-year-old — pick age-appropriate styles.' },
-        { n: 'Jordan Carter', a: 'Boy · 8 mo', shirt: '6–9M', pant: '6–9M', shoe: null, dia: 'Size 3' },
-        { n: 'Yolanda Carter', a: 'Woman · 38 yr', shirt: 'L · Women’s', pant: '12 · Women’s', shoe: '8 · 8½', dia: null }
+        { n: 'Aaliyah Carter', a: 'Girl \u00B7 9 yr', shirt: '10 \u00B7 Girls\u2019', pant: '10 \u00B7 Girls\u2019', shoe: '3Y \u00B7 3\u00BDY', dia: null },
+        { n: 'Marcus Carter', a: 'Boy \u00B7 14 yr', shirt: '16 \u00B7 Boys\u2019', pant: '30 \u00D7 30 \u00B7 Men\u2019s', shoe: '8 \u00B7 8\u00BD', dia: null },
+        { n: 'Nia Carter', a: 'Girl \u00B7 12 yr', shirt: 'S \u00B7 Women\u2019s', pant: '7 \u00B7 Juniors', shoe: '6 \u00B7 6\u00BD', dia: null,
+          flag: 'Adult sizes for a 12-year-old \u2014 pick age-appropriate styles.' },
+        { n: 'Jordan Carter', a: 'Boy \u00B7 8 mo', shirt: '6\u20139M', pant: '6\u20139M', shoe: null, dia: 'Size 3' },
+        { n: 'Yolanda Carter', a: 'Woman \u00B7 38 yr', shirt: 'L \u00B7 Women\u2019s', pant: '12 \u00B7 Women\u2019s', shoe: '8 \u00B7 8\u00BD', dia: null }
       ]
     },
     {
@@ -602,30 +648,33 @@
       phone: '(240) 555-0188', email: 'j.okonkwo@mcpsmd.org',
       received: '2026-09-09', status: 'new', prayer: '',
       people: [
-        { n: 'Devon Price', a: 'Boy · 13 yr', shirt: '18 · Boys’', pant: '32 × 30 · Men’s', shoe: '9', dia: null },
-        { n: 'Kayla Price', a: 'Girl · 11 yr', shirt: '12 · Girls’', pant: '12 · Girls’', shoe: '4Y', dia: null }
+        { n: 'Devon Price', a: 'Boy \u00B7 13 yr', shirt: '18 \u00B7 Boys\u2019', pant: '32 \u00D7 30 \u00B7 Men\u2019s', shoe: '9', dia: null },
+        { n: 'Kayla Price', a: 'Girl \u00B7 11 yr', shirt: '12 \u00B7 Girls\u2019', pant: '12 \u00B7 Girls\u2019', shoe: '4Y', dia: null }
       ]
     },
     {
       id: '2026-0409', name: 'Tanya Brooks', org: null,
       phone: '(301) 555-0119', email: 'tbrooks88@gmail.com',
       received: '2026-09-05', status: 'progress', printedOn: '2026-09-08', crisis: true,
-      prayer: 'Please pray for my mother’s health.',
+      notes: 'Called to confirm shoe sizes \u2014 Isaiah is between a 10C and 10\u00bdC, take both if we have them. Pickup Thursday afternoon.',
+      notesAt: '2026-09-08',
+      prayer: 'Please pray for my mother\u2019s health.',
       people: [
-        { n: 'Tanya Brooks', a: 'Woman · 29 yr', shirt: 'M · Women’s', pant: '8 · Women’s', shoe: '7½', dia: null },
-        { n: 'Isaiah Brooks', a: 'Boy · 4 yr', shirt: '4T', pant: '4T', shoe: '10C · 10½C', dia: null },
-        { n: 'Amara Brooks', a: 'Girl · 18 mo', shirt: '18–24M', pant: '18–24M', shoe: '6C', dia: 'Size 5' }
+        { n: 'Tanya Brooks', a: 'Woman \u00B7 29 yr', shirt: 'M \u00B7 Women\u2019s', pant: '8 \u00B7 Women\u2019s', shoe: '7\u00BD', dia: null },
+        { n: 'Isaiah Brooks', a: 'Boy \u00B7 4 yr', shirt: '4T', pant: '4T', shoe: '10C \u00B7 10\u00BDC', dia: null },
+        { n: 'Amara Brooks', a: 'Girl \u00B7 18 mo', shirt: '18\u201324M', pant: '18\u201324M', shoe: '6C', dia: 'Size 5' }
       ]
     },
     {
       id: '2026-0405', name: 'Elena Ruiz', org: 'Interfaith Works',
       phone: '(240) 555-0203', email: 'eruiz@interfaithworks.org',
       received: '2026-08-30', status: 'progress', printedOn: '2026-09-02', prayer: '',
+      notes: 'Spanish-speaking household. Elena translates.', notesAt: '2026-09-02',
       people: [
-        { n: 'Sofia Marín', a: 'Girl · 6 yr', shirt: '6 · Girls’', pant: '6 · Girls’', shoe: '12C', dia: null },
-        { n: 'Mateo Marín', a: 'Boy · 3 yr', shirt: '3T', pant: '3T', shoe: '9C', dia: null },
-        { n: 'Lucía Marín', a: 'Girl · 5 mo', shirt: '3–6M', pant: '3–6M', shoe: null, dia: 'Size 2' },
-        { n: 'Rosa Marín', a: 'Woman · 41 yr', shirt: 'XL · Women’s', pant: '16 · Women’s', shoe: '9', dia: null }
+        { n: 'Sofia Mar\u00EDn', a: 'Girl \u00B7 6 yr', shirt: '6 \u00B7 Girls\u2019', pant: '6 \u00B7 Girls\u2019', shoe: '12C', dia: null },
+        { n: 'Mateo Mar\u00EDn', a: 'Boy \u00B7 3 yr', shirt: '3T', pant: '3T', shoe: '9C', dia: null },
+        { n: 'Luc\u00EDa Mar\u00EDn', a: 'Girl \u00B7 5 mo', shirt: '3\u20136M', pant: '3\u20136M', shoe: null, dia: 'Size 2' },
+        { n: 'Rosa Mar\u00EDn', a: 'Woman \u00B7 41 yr', shirt: 'XL \u00B7 Women\u2019s', pant: '16 \u00B7 Women\u2019s', shoe: '9', dia: null }
       ]
     },
     {
@@ -633,12 +682,12 @@
       phone: '(301) 555-0177', email: 'praman@mannafood.org',
       received: '2026-08-08', status: 'new', prayer: '',
       people: [
-        { n: 'Amir Haddad', a: 'Boy · 16 yr', shirt: 'M · Men’s', pant: '32 × 32 · Men’s', shoe: '10 · 10½', dia: null },
-        { n: 'Layla Haddad', a: 'Girl · 14 yr', shirt: '16 · Girls’', pant: '9 · Juniors', shoe: '7', dia: null },
-        { n: 'Sami Haddad', a: 'Boy · 10 yr', shirt: '10 · Boys’', pant: '10 · Boys’', shoe: '2Y', dia: null },
-        { n: 'Nour Haddad', a: 'Girl · 7 yr', shirt: '8 · Girls’', pant: '8 · Girls’', shoe: '13C', dia: null },
-        { n: 'Zaid Haddad', a: 'Boy · 2 yr', shirt: '2T', pant: '2T', shoe: '7C', dia: 'Size 6' },
-        { n: 'Hana Haddad', a: 'Woman · 36 yr', shirt: 'M · Women’s', pant: '10 · Women’s', shoe: '8', dia: null }
+        { n: 'Amir Haddad', a: 'Boy \u00B7 16 yr', shirt: 'M \u00B7 Men\u2019s', pant: '32 \u00D7 32 \u00B7 Men\u2019s', shoe: '10 \u00B7 10\u00BD', dia: null },
+        { n: 'Layla Haddad', a: 'Girl \u00B7 14 yr', shirt: '16 \u00B7 Girls\u2019', pant: '9 \u00B7 Juniors', shoe: '7', dia: null },
+        { n: 'Sami Haddad', a: 'Boy \u00B7 10 yr', shirt: '10 \u00B7 Boys\u2019', pant: '10 \u00B7 Boys\u2019', shoe: '2Y', dia: null },
+        { n: 'Nour Haddad', a: 'Girl \u00B7 7 yr', shirt: '8 \u00B7 Girls\u2019', pant: '8 \u00B7 Girls\u2019', shoe: '13C', dia: null },
+        { n: 'Zaid Haddad', a: 'Boy \u00B7 2 yr', shirt: '2T', pant: '2T', shoe: '7C', dia: 'Size 6' },
+        { n: 'Hana Haddad', a: 'Woman \u00B7 36 yr', shirt: 'M \u00B7 Women\u2019s', pant: '10 \u00B7 Women\u2019s', shoe: '8', dia: null }
       ]
     },
     {
@@ -646,7 +695,7 @@
       phone: '(240) 555-0166', email: 'dwhitfield@mcpsmd.org',
       received: '2026-08-05', status: 'filled', filledOn: '2026-08-20', prayer: '',
       people: [
-        { n: 'Trevor Nash', a: 'Boy · 8 yr', shirt: '8 · Boys’', pant: '8 · Boys’', shoe: '1Y', dia: null }
+        { n: 'Trevor Nash', a: 'Boy \u00B7 8 yr', shirt: '8 \u00B7 Boys\u2019', pant: '8 \u00B7 Boys\u2019', shoe: '1Y', dia: null }
       ]
     },
     {
@@ -654,13 +703,13 @@
       phone: '(301) 555-0155', email: 'cmendez@mccrisis.org',
       received: '2026-07-28', status: 'filled', filledOn: '2026-08-12', prayer: '',
       people: [
-        { n: 'Julio Mendez', a: 'Man · 52 yr', shirt: 'L · Men’s', pant: '36 × 30 · Men’s', shoe: '11', dia: null },
-        { n: 'Alma Mendez', a: 'Woman · 49 yr', shirt: 'L · Women’s', pant: '14 · Women’s', shoe: '8½', dia: null }
+        { n: 'Julio Mendez', a: 'Man \u00B7 52 yr', shirt: 'L \u00B7 Men\u2019s', pant: '36 \u00D7 30 \u00B7 Men\u2019s', shoe: '11', dia: null },
+        { n: 'Alma Mendez', a: 'Woman \u00B7 49 yr', shirt: 'L \u00B7 Women\u2019s', pant: '14 \u00B7 Women\u2019s', shoe: '8\u00BD', dia: null }
       ]
     }
   ];
 
-  var state = { filter: 'open', q: '', open: {}, declining: {} };
+  var state = { filter: 'open', q: '', open: {}, declining: {}, noting: {} };
 
   // ---------------------------------------------------------------------
   // Helpers
@@ -696,7 +745,7 @@
 
   function matches(r, q) {
     if (!q) return true;
-    var hay = [r.id, r.name, r.org || '', r.phone, r.email,
+    var hay = [r.id, r.name, r.org || '', r.phone, r.email, r.notes || '',
                r.people.map(function (p) { return p.n; }).join(' ')].join(' ').toLowerCase();
     return hay.indexOf(q.toLowerCase()) !== -1;
   }
@@ -812,7 +861,7 @@
     });
     wrap.appendChild(list);
 
-    if (r.prayer) wrap.appendChild(el('div', 'prayer-line', '“' + r.prayer + '”'));
+    if (r.prayer) wrap.appendChild(el('div', 'prayer-line', '\u201C' + r.prayer + '\u201D'));
     return wrap;
   }
 
@@ -842,7 +891,7 @@
     var facts = el('div', 'req-facts');
     facts.appendChild(el('span', 'id', '#' + r.id));
     facts.appendChild(el('span', null, r.people.length + (r.people.length === 1 ? ' recipient' : ' recipients')));
-    facts.appendChild(el('span', null, 'Received ' + fmt(r.received) + ' · ' + waitText(r)));
+    facts.appendChild(el('span', null, 'Received ' + fmt(r.received) + ' \u00B7 ' + waitText(r)));
     if (r.status === 'filled' && r.filledOn) facts.appendChild(el('span', null, 'Filled ' + fmt(r.filledOn)));
     if (r.status === 'declined' && r.declinedOn) facts.appendChild(el('span', null, 'Declined ' + fmt(r.declinedOn)));
     if (r.status === 'progress' && r.printedOn) facts.appendChild(el('span', null, 'Printed ' + fmt(r.printedOn)));
@@ -874,6 +923,15 @@
       render();
     });
     acts.appendChild(toggle);
+
+    // A note can be added at any point, including after a request is closed.
+    var noteBtn = el('button', 'btn quiet', r.notes ? 'Edit note' : 'Add note');
+    noteBtn.type = 'button';
+    noteBtn.addEventListener('click', function () {
+      state.noting[r.id] = !state.noting[r.id];
+      render();
+    });
+    acts.appendChild(noteBtn);
 
     if (isOpen(r)) {
       // Once a sheet has been generated the action is a re-open, not a first print.
@@ -908,13 +966,65 @@
     if (r.status === 'declined' && r.reason) {
       var rl = el('div', 'decline-panel');
       rl.appendChild(el('span', 'cap', 'Reason given'));
-      rl.appendChild(el('div', 'reason-line', r.reason + (r.reasonNote ? ' — ' + r.reasonNote : '')));
+      rl.appendChild(el('div', 'reason-line', r.reason + (r.reasonNote ? ' \u2014 ' + r.reasonNote : '')));
       box.appendChild(rl);
     }
 
     if (state.declining[r.id]) box.appendChild(renderDeclinePanel(r));
+    if (state.noting[r.id] || r.notes) box.appendChild(renderNotes(r));
     if (state.open[r.id]) box.appendChild(renderDetail(r));
     return box;
+  }
+
+  function renderNotes(r) {
+    var wrap = el('div', 'notes-box');
+    var cap = el('div', 'cap');
+    cap.appendChild(document.createTextNode('Volunteer notes'));
+    if (r.notesAt && !state.noting[r.id]) {
+      cap.appendChild(el('span', 'when', 'last updated ' + fmt(r.notesAt)));
+    }
+    wrap.appendChild(cap);
+
+    if (!state.noting[r.id]) {
+      wrap.appendChild(el('div', 'notes-text', r.notes));
+      return wrap;
+    }
+
+    var ta = document.createElement('textarea');
+    ta.id = 'notes-' + r.id;
+    ta.value = r.notes || '';
+    ta.placeholder = 'Anything the next volunteer should know \u2014 a call made, a pickup time, something to check at the rack.';
+    ta.setAttribute('aria-label', 'Volunteer notes for ' + r.name + '\u2019s request');
+    wrap.appendChild(ta);
+
+    var acts = el('div', 'notes-actions');
+    var save = el('button', 'btn', 'Save note');
+    save.type = 'button';
+    save.addEventListener('click', function () { saveNote(r, ta.value); });
+    var cancel = el('button', 'btn quiet', 'Cancel');
+    cancel.type = 'button';
+    cancel.addEventListener('click', function () { state.noting[r.id] = false; render(); });
+    acts.appendChild(save);
+    acts.appendChild(cancel);
+    wrap.appendChild(acts);
+
+    setTimeout(function () { ta.focus(); }, 0);
+    return wrap;
+  }
+
+  function saveNote(r, text) {
+    var was = r.notes;
+    r.notes = text.trim();
+    r.notesAt = r.notes ? todayStr() : null;
+    state.noting[r.id] = false;
+    render();
+    toast(r.notes
+      ? 'Note saved on ' + r.name + '\u2019s request.'
+      : 'Note cleared from ' + r.name + '\u2019s request.',
+      'Undo', function () {
+        r.notes = was;
+        render();
+      });
   }
 
   function renderDeclinePanel(r) {
@@ -926,7 +1036,7 @@
     var sel = document.createElement('select');
     sel.id = 'reason-' + r.id;
     sel.setAttribute('aria-label', 'Reason for declining');
-    sel.appendChild(new Option('Choose a reason…', ''));
+    sel.appendChild(new Option('Choose a reason\u2026', ''));
     DECLINE_REASONS.forEach(function (x) { sel.appendChild(new Option(x, x)); });
     fields.appendChild(sel);
 
@@ -1058,13 +1168,29 @@
       doc.text(doc.splitTextToSize(c[1], cw - 12)[0], cx + 6, cy + 23);
     });
 
-    if (r.prayer) {
-      cy += sh + 10;
+    cy += sh + 10;
+    var bottom = y + h - pad;   // never draw past the header box
+
+    // Volunteer notes print above the prayer request: they are instructions
+    // for whoever is holding the sheet, so they earn the higher position.
+    if (r.notes && cy + 16 < bottom) {
+      doc.setLineWidth(2); doc.line(x + pad, cy - 2, x + pad, cy + 12);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(6);
+      doc.text('VOLUNTEER NOTES', x + pad + 6, cy + 3);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
+      var nl = doc.splitTextToSize(r.notes, w - pad * 2 - 12);
+      var room = Math.max(0, Math.floor((bottom - (cy + 13)) / 10));
+      var shown = Math.min(2, room, nl.length);
+      for (var li = 0; li < shown; li++) doc.text(nl[li], x + pad + 6, cy + 13 + li * 10);
+      cy += 13 + shown * 10 + 6;
+    }
+
+    if (r.prayer && cy + 16 < bottom) {
       doc.setLineWidth(2); doc.line(x + pad, cy - 2, x + pad, cy + 12);
       doc.setFont('helvetica', 'bold'); doc.setFontSize(6);
       doc.text('PRAYER REQUEST', x + pad + 6, cy + 3);
       doc.setFont('helvetica', 'italic'); doc.setFontSize(8.5);
-      doc.text(doc.splitTextToSize('“' + r.prayer + '”', w - pad * 2 - 12)[0], x + pad + 6, cy + 13);
+      doc.text(doc.splitTextToSize('\u201C' + r.prayer + '\u201D', w - pad * 2 - 12)[0], x + pad + 6, cy + 13);
     }
   }
 
@@ -1122,7 +1248,7 @@
       doc.setFont('helvetica', 'bold'); doc.setFontSize(6);
       doc.text(v[0], cx + 5, cyy + 10);
       if (v[1]) {
-        var parts = String(v[1]).split(' · ');
+        var parts = String(v[1]).split(' \u00B7 ');
         var main = parts[0], sub = parts[1] || '';
         doc.setFont('courier', 'bold'); doc.setFontSize(12);
         doc.text(doc.splitTextToSize(main, cw - 10)[0], cx + 5, cyy + 24);
@@ -1150,7 +1276,7 @@
     doc.setFont('helvetica', 'bold'); doc.setFontSize(6);
     doc.text('ITEMS NEEDED MOST', x + pad, cy);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-    var notes = doc.splitTextToSize(person.notes || '—', w - pad * 2);
+    var notes = doc.splitTextToSize(person.notes || '\u2014', w - pad * 2);
     var maxLines = Math.max(1, Math.floor((y + h - (cy + 10)) / 10));
     notes.slice(0, maxLines).forEach(function (ln, i) {
       doc.text(ln, x + pad, cy + 10 + i * 10);
@@ -1222,10 +1348,10 @@
       try {
         var file = new File([doc.output('blob')], name, { type: 'application/pdf' });
         if (navigator.canShare({ files: [file] })) {
-          navigator.share({ files: [file], title: 'Pick sheet — ' + r.name })
+          navigator.share({ files: [file], title: 'Pick sheet \u2014 ' + r.name })
             .then(function () {
               markPrinted();
-              toast('Pick sheet sent to the share sheet — choose Print.');
+              toast('Pick sheet sent to the share sheet \u2014 choose Print.');
             })
             .catch(function () { /* the volunteer cancelled; nothing to report */ });
           return;
@@ -1250,7 +1376,7 @@
       markPrinted();
       toast(wasPrinted
         ? 'Pick sheet for ' + r.name + ' reopened in a new tab.'
-        : 'Pick sheet for ' + r.name + ' opened in a new tab — print it from there.');
+        : 'Pick sheet for ' + r.name + ' opened in a new tab \u2014 print it from there.');
       return;
     }
 
@@ -1263,7 +1389,7 @@
         ? name + ' saved. Opening in a tab needs the page served over http, not opened from disk.'
         : 'New tab was blocked, so ' + name + ' was saved instead.');
     } catch (e2) {
-      toast('This frame blocks new tabs and downloads — open the page directly to get the PDF.');
+      toast('This frame blocks new tabs and downloads \u2014 open the page directly to get the PDF.');
     }
   }
 
@@ -1272,7 +1398,7 @@
     r.status = 'filled';
     r.filledOn = todayStr();
     render();
-    toast(r.name + '’s request marked filled.', 'Undo', function () {
+    toast(r.name + '\u2019s request marked filled.', 'Undo', function () {
       r.status = prev.status;
       r.filledOn = prev.filledOn;
       render();
@@ -1283,8 +1409,8 @@
     r.crisis = on;
     render();
     toast(on
-      ? r.name + '’s request marked crisis — moved to the top of the queue.'
-      : 'Crisis flag removed from ' + r.name + '’s request.');
+      ? r.name + '\u2019s request marked crisis \u2014 moved to the top of the queue.'
+      : 'Crisis flag removed from ' + r.name + '\u2019s request.');
   }
 
   function decline(r, reason, note) {
@@ -1295,7 +1421,7 @@
     r.declinedOn = todayStr();
     state.declining[r.id] = false;
     render();
-    toast(r.name + '’s request declined — ' + reason.toLowerCase() + '.', 'Undo', function () {
+    toast(r.name + '\u2019s request declined \u2014 ' + reason.toLowerCase() + '.', 'Undo', function () {
       r.status = prev.status;
       r.reason = prev.reason;
       r.reasonNote = prev.reasonNote;
@@ -1311,7 +1437,7 @@
     r.reason = null;
     r.reasonNote = '';
     render();
-    toast(r.name + '’s request reopened.');
+    toast(r.name + '\u2019s request reopened.');
   }
 
   // ---------------------------------------------------------------------
