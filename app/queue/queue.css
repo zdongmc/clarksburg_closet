@@ -1,0 +1,507 @@
+  .app {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding-inline: 18px;
+    padding-block: 26px 72px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .notice {
+    background: var(--amber-soft);
+    border-left: 3px solid var(--amber);
+    padding: 11px 15px;
+    font-size: 0.87rem;
+  }
+
+  .notice strong { font-family: var(--display); }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .logo { width: 62px; height: 62px; flex: none; display: block; }
+
+  .mast-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 4.6vw, 2.1rem);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin: 0;
+  }
+
+  /* ---------- stat tiles ---------- */
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .stat {
+    background: var(--panel);
+    padding: 12px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .stat .k {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .stat .v {
+    font-family: var(--display);
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat.is-filled .v { color: var(--green); }
+  .stat.is-crisis-stat .v { color: var(--red); }
+
+  /* ---------- controls ---------- */
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .filter {
+    font-family: var(--display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: var(--panel);
+    color: var(--ink-soft);
+    border: 1px solid var(--rule-strong);
+    padding: 10px 15px;
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  .filter:hover { border-color: var(--accent); color: var(--ink); }
+
+  .filter[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+
+  .filter .n { font-family: var(--mono); opacity: 0.75; margin-left: 5px; }
+
+  .search {
+    flex: 1 1 15rem;
+    max-width: 22rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .search input {
+    font-family: var(--body);
+    font-size: 1rem;
+    min-height: 44px;
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--rule-strong);
+    padding: 8px 11px;
+    width: 100%;
+  }
+
+  .search .hint { font-size: 0.75rem; color: var(--ink-soft); }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* ---------- queue ---------- */
+
+  .queue { display: flex; flex-direction: column; gap: 10px; }
+
+  .req {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--rule-strong);
+  }
+
+  .req.s-new { border-left-color: var(--accent); }
+  .req.s-progress { border-left-color: var(--amber); }
+  .req.s-filled { border-left-color: var(--green); }
+  .req.s-declined { border-left-color: var(--red); }
+
+  /* Crisis is a volunteer's own designation, so it outlines the whole card
+     rather than taking the left edge, which already encodes status. */
+  .req.is-crisis { box-shadow: inset 0 0 0 2px var(--red); }
+
+  .req-main {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px 18px;
+    padding: 14px 16px;
+    align-items: start;
+  }
+
+  .req-who { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+  .req-name {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .req-org { font-size: 0.92rem; color: var(--ink-soft); }
+  .req-org em { font-style: italic; }
+
+  .req-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 16px;
+    font-family: var(--mono);
+    font-size: 0.92rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .req-contact a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule-strong);
+    overflow-wrap: anywhere;
+  }
+
+  .req-contact a:hover { color: var(--accent); border-color: var(--accent); }
+
+  .req-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .req-facts .id { font-family: var(--mono); color: var(--ink); }
+
+  .req-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .pill {
+    font-family: var(--display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+
+  .pill.new { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .pill.progress { background: var(--amber-soft); color: var(--amber); border-color: var(--amber); }
+  .pill.filled { background: var(--green-soft); color: var(--green); border-color: var(--green); }
+  .pill.declined { background: var(--red-soft); color: var(--red); border-color: var(--red); }
+  .pill.crisis { background: var(--red); color: var(--panel); border-color: var(--red); }
+
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .acts { display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+
+  .crisis-check {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--display);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .crisis-check { padding: 8px 0; min-height: 44px; }
+  .crisis-check input { width: 1.5rem; height: 1.5rem; accent-color: var(--red); cursor: pointer; }
+  .crisis-check:hover { color: var(--red); }
+  .crisis-check.on { color: var(--red); }
+
+  /* Touch sizing throughout: this runs on an iPad, so every control clears a
+     44px target and no field is small enough to trigger iOS focus zoom. */
+  .btn {
+    font-family: var(--display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: 1px solid var(--accent);
+    padding: 11px 16px;
+    min-height: 44px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .btn.ghost { background: none; color: var(--accent); }
+  .btn.ghost:hover { background: var(--accent-soft); }
+
+  .btn.done { background: var(--green); border-color: var(--green); color: var(--accent-ink); }
+  .btn.done:hover { filter: brightness(1.08); }
+
+  .btn.quiet {
+    background: none;
+    color: var(--ink-soft);
+    border-color: var(--rule-strong);
+  }
+
+  .btn.quiet:hover { color: var(--ink); border-color: var(--ink-soft); }
+
+  .btn.danger { background: none; color: var(--red); border-color: var(--red); }
+  .btn.danger:hover { background: var(--red-soft); }
+
+  /* Declining asks for a reason inline rather than in a modal -- it is a
+     decision the requester will be told about, so it should not be one click. */
+  .decline-panel {
+    border-top: 1px solid var(--rule);
+    background: var(--red-soft);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .decline-panel .cap {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--red);
+  }
+
+  .decline-panel select,
+  .decline-panel input {
+    font-family: var(--body);
+    font-size: 1rem;
+    min-height: 44px;
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--rule-strong);
+    padding: 8px 10px;
+    width: 100%;
+  }
+
+  .decline-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 10px;
+  }
+
+  .decline-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .reason-line { font-size: 0.85rem; color: var(--red); }
+
+  /* ---------- volunteer notes ---------- */
+
+  /* Notes are the closet's own record, not something the requester wrote, so
+     they sit apart from the recipient detail and read as an internal margin. */
+  .notes-box {
+    border-top: 1px solid var(--rule);
+    background: var(--sunk);
+    padding: 11px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .notes-box .cap {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .notes-box .cap .when { font-family: var(--body); letter-spacing: 0; text-transform: none; font-weight: 400; font-size: 0.8rem; }
+
+  .notes-text { font-size: 0.95rem; white-space: pre-wrap; }
+  .notes-text.empty { color: var(--ink-soft); font-style: italic; }
+
+  .notes-box textarea {
+    font-family: var(--body);
+    font-size: 1rem;
+    color: var(--ink);
+    background: var(--panel);
+    border: 1px solid var(--rule-strong);
+    padding: 10px 11px;
+    width: 100%;
+    min-height: 5rem;
+    resize: vertical;
+    line-height: 1.45;
+  }
+
+  .notes-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ---------- expanded recipients ---------- */
+
+  .req-detail {
+    border-top: 1px solid var(--rule);
+    padding: 12px 16px 15px;
+    background: var(--sunk);
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .detail-cap {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .rlist { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+
+  .rrow {
+    background: var(--panel);
+    padding: 8px 12px;
+    display: grid;
+    grid-template-columns: minmax(8rem, 1.2fr) repeat(auto-fit, minmax(6rem, 1fr));
+    gap: 4px 14px;
+    align-items: baseline;
+  }
+
+  .rrow .who { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+  .rrow .rn { font-family: var(--display); font-weight: 700; font-size: 0.95rem; }
+  .rrow .ra { font-size: 0.8rem; color: var(--ink-soft); }
+
+  .sz { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+  .sz .k {
+    font-family: var(--display);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .sz .v { font-family: var(--mono); font-size: 0.95rem; font-weight: 500; overflow-wrap: anywhere; }
+  .sz .v.none { font-family: var(--body); font-style: italic; color: var(--ink-soft); font-size: 0.85rem; }
+
+  .rflag {
+    grid-column: 1 / -1;
+    font-size: 0.82rem;
+    color: var(--amber);
+    background: var(--amber-soft);
+    border-left: 2px solid var(--amber);
+    padding: 4px 9px;
+  }
+
+  .prayer-line {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+
+  .empty {
+    background: var(--panel);
+    border: 1px dashed var(--rule-strong);
+    padding: 28px 20px;
+    text-align: center;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- toast ---------- */
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--ground);
+    padding: 11px 18px;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: calc(100% - 32px);
+    z-index: 20;
+  }
+
+  .toast button {
+    font-family: var(--display);
+    font-size: 0.9rem;
+    padding: 6px 2px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    border-bottom: 1px solid currentColor;
+    color: inherit;
+    cursor: pointer;
+    padding: 0 0 1px;
+  }
+
+  /* iPad portrait is 768px: give the actions their own full-width row well
+     before that, so buttons never compress into a narrow right-hand column. */
+  @media (max-width: 900px) {
+    .req-main { grid-template-columns: 1fr; }
+    .req-side { align-items: stretch; }
+    .pills { justify-content: flex-start; }
+    .acts { justify-content: flex-start; }
+    .acts .btn { flex: 1 1 auto; }
+    .crisis-check { justify-content: flex-start; }
+  }
+
+  @media (max-width: 620px) {
+    .req-main { grid-template-columns: 1fr; }
+    .req-side { align-items: flex-start; }
+    .acts, .pills { justify-content: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }

@@ -4,19 +4,55 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-This repo is the starting point for a clothing request & record-keeping system for Clarksburg Closet. It contains reference material (the current intake form), the ministry's logo, and static HTML mockups for design discussion — no application code, no database yet. Tech stack has not been decided; confirm with the user before scaffolding a framework or initializing tooling.
+This repo holds a **working application**: a Next.js 15 app on Neon Postgres with Drizzle, built from the mockups that are still here as the design record. It also keeps the reference material (the current paper intake form) and the ministry's logo.
 
 The size vocabulary and form behaviour below were settled with the volunteers and should be treated as decided, not re-litigated.
 
-## Where this left off
+Run it with `pnpm install`, a filled-in `.env.local`, `pnpm db:push`, then `pnpm dev`. See `README.md`.
 
-Design is settled far enough to build against; **nothing is persisted yet**. The next piece of work is the database — see "Data model" below, which is written to be turned into a schema.
+## The application
+
+| Route | Who it is for | Gated |
+| --- | --- | --- |
+| `/request` | Case workers and households | No — public |
+| `/queue` | Volunteers working the requests | Shared passcode |
+| `/reports` | Volunteers and the board | Shared passcode |
+
+Where things live:
+
+- `db/schema.ts` — the whole schema in one file, applied with `drizzle-kit push`. No migration files.
+- `lib/sizes.ts` — the size vocabulary. Simultaneously the form's dropdowns, the values the database accepts, and the key for reading sizes off past paper requests.
+- `lib/format.ts` — request numbers, size display strings, fiscal-year arithmetic.
+- `lib/queries.ts` / `lib/reports.ts` — the queue and the report figures.
+- `app/queue/pickSheet.ts` — the jsPDF pick sheet, ported coordinate for coordinate from the mockup.
+- `app/globals.css` plus one CSS file per route — the mockups' own CSS, with the three near-identical token blocks merged into `globals.css`.
+
+**Volunteer access is a single shared passcode** (`VOLUNTEER_PASSCODE`), not per-person sign-in — decided on 2026-09-11. The session is a signed cookie carrying only an expiry; `lib/auth.ts` and `middleware.ts` are the whole of it. The consequence is that item 2 below stays open.
+
+### Sizes in the database
+
+Sizes are not one shared vocabulary, so the columns are not either:
+
+- `shirtSize` + `shirtGroup` — a single value, plus the list it came from.
+- `pantSize` + `pantGroup`, **or** `pantWaist` + `pantInseam` for men's. Never both.
+- `shoeSizes text[]` — a set, because a requester ticks every size that would fit.
+- `diaperSize` — nullable, opt-in.
+
+**Every size carries its group.** A stored "10" is exactly the paper form's failure; `shirtGroup` / `pantGroup` are what let it print as "10 · Girls'". The request form encodes the group into every option value (`"Girls'|10"`), and the server action refuses a group+size pair that list does not actually offer.
+
+`'none'` is the stored value for **Not needed** — a decision someone recorded, distinct from a blank.
+
+### Request numbers
+
+`requests.seq` is a Postgres identity column; the displayed `#2026-0413` is composed at read time from the year in `receivedOn` plus the padded seq (`lib/format.ts`). Nothing is stored, so nothing can collide or drift.
+
+## Where this left off
 
 Still open, in rough priority order:
 
-1. **Pick the stack and stand up the database.** The mockups imply a normal web app (the PDF flow needs an http origin, not `file://`). `math-club-v2` in the same workspace is a working reference for the pattern the user already runs: Neon Postgres + Drizzle, schema in one `db/schema.ts`, `drizzle-kit push` with no migration files.
-2. **Spanish version of the request form** — planned, does not exist.
-3. **Volunteer identity** — nothing records *who* did anything: who filled a request, or who wrote a note. One decision covers both. Cheap to capture at the click, impossible to reconstruct later, so worth settling before real data accumulates.
+1. **Spanish version of the request form** — planned, does not exist. `lib/sizes.ts` is already the single place the option lists come from, so a translated form shares the vocabulary rather than forking it.
+2. **Volunteer identity** — nothing records *who* did anything: who filled a request, or who wrote a note. The shared passcode was chosen knowing this. One decision covers both; `lib/auth.ts` is where it lands. Cheap to capture at the click, impossible to reconstruct later.
+3. **Email confirmations.** The form tells the requester their confirmation comes by email and the thank-you screen repeats it, but **nothing is sent yet** — no mail provider is wired up.
 4. The public website still advertises a 4-week turnaround; the new form does not.
 
 ## About Clarksburg Closet
@@ -148,7 +184,7 @@ Spanish-speaking households are a significant part of the population served, so 
 
 ## Mockups
 
-Static, self-contained HTML (embedded CSS + vanilla JS, no build tools) for design discussion. Not wired to any backend; state is in-memory and resets on reload.
+Static, self-contained HTML (embedded CSS + vanilla JS, no build tools). **These are now the design record, not the product** — the app was built from them and the app is what ships. Keep them for the reasoning they carry; when a behaviour changes, change the app and note it here rather than trying to keep four HTML files in step.
 
 | File | What it is |
 | --- | --- |

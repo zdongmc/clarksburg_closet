@@ -1,0 +1,81 @@
+.login-wrap {
+  max-width: 26rem;
+  margin: 0 auto;
+  padding-inline: 18px;
+  padding-block: 64px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-wrap .logo { width: 72px; height: 72px; display: block; }
+
+.login-wrap h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.7rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.login-wrap .eyebrow {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.login-wrap p { color: var(--ink-soft); margin: 0; font-size: 0.95rem; }
+
+.login-panel {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-panel label {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.login-panel input {
+  font-family: var(--body);
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--sunk);
+  border: 1px solid var(--rule-strong);
+  padding: 11px 12px;
+  min-height: 44px;
+  width: 100%;
+}
+
+.login-panel button {
+  font-family: var(--display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: 1px solid var(--accent);
+  padding: 12px 18px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.login-err {
+  background: var(--red-soft);
+  border-left: 3px solid var(--red);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: var(--red);
+  font-weight: 600;
+}

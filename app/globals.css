@@ -1,0 +1,156 @@
+/*
+ * Shared design tokens for every page.
+ *
+ * The three mockups each carried their own copy of this block; merging them
+ * here is the only change made to the settled design. Where they disagreed on
+ * a hair's-breadth of grey, the value two of the three used won.
+ *
+ * Theme-aware in three states, and every colour is defined on bare :root
+ * first: an explicit choice stamps data-theme, and the default "system"
+ * setting stamps nothing, leaving only prefers-color-scheme to separate them.
+ */
+
+:root {
+  --ground:      #F2F4F7;
+  --panel:       #FFFFFF;
+  --sunk:        #EDF0F4;
+  --ink:         #141B24;
+  --ink-2:       #4A5561;
+  --ink-3:       #78838F;
+  --ink-soft:    #58636F;
+  --rule:        #DCE2E9;
+  --rule-strong: #B6C0CA;
+  --grid:        #E6EAEF;
+  --accent:      #00467F;
+  --accent-ink:  #FFFFFF;
+  --accent-soft: #E4EDF5;
+
+  --green:       #47701B;
+  --green-soft:  #E9F1DD;
+  --amber:       #8A5A10;
+  --amber-soft:  #F8EFDD;
+  --red:         #A33A2E;
+  --red-soft:    #F8E7E4;
+
+  /* The request form named the same three roles differently. */
+  --good:        var(--green);
+  --good-soft:   var(--green-soft);
+  --flag:        var(--amber);
+  --flag-soft:   var(--amber-soft);
+  --bad:         var(--red);
+  --bad-soft:    var(--red-soft);
+
+  /* Chart series. Brand-adjacent steps, validated for the lightness band,
+     chroma floor, CVD separation and surface contrast in BOTH themes -- which
+     is why the same two values serve light and dark. The brand navy #00467F
+     itself FAILS as a chart fill: too dark for the lightness band.
+     Re-validate before substituting anything. */
+  --s1: #2F74AD;
+  --s2: #7BA33C;
+
+  color-scheme: light;
+
+  --display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --body:    'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  --mono:    'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:      #11161C;
+    --panel:       #1A2027;
+    --sunk:        #161B21;
+    --ink:         #E8ECF1;
+    --ink-2:       #B3BDC7;
+    --ink-3:       #8A95A1;
+    --ink-soft:    #98A4B0;
+    --rule:        #2A313A;
+    --rule-strong: #454F59;
+    --grid:        #262E37;
+    --accent:      #94BBDE;
+    --accent-ink:  #0E141A;
+    --accent-soft: #212D39;
+    --green:       #A6C97B;
+    --green-soft:  #212B19;
+    --amber:       #DBA95E;
+    --amber-soft:  #2B2519;
+    --red:         #E2857A;
+    --red-soft:    #2E1D1A;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:      #11161C;
+  --panel:       #1A2027;
+  --sunk:        #161B21;
+  --ink:         #E8ECF1;
+  --ink-2:       #B3BDC7;
+  --ink-3:       #8A95A1;
+  --ink-soft:    #98A4B0;
+  --rule:        #2A313A;
+  --rule-strong: #454F59;
+  --grid:        #262E37;
+  --accent:      #94BBDE;
+  --accent-ink:  #0E141A;
+  --accent-soft: #212D39;
+  --green:       #A6C97B;
+  --green-soft:  #212B19;
+  --amber:       #DBA95E;
+  --amber-soft:  #2B2519;
+  --red:         #E2857A;
+  --red-soft:    #2E1D1A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ---------- the thin bar that links the two volunteer views ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--rule);
+  background: var(--panel);
+  padding: 10px 18px;
+}
+
+.topbar a, .topbar button {
+  font-family: var(--display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 8px 2px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.topbar a[aria-current="page"] { color: var(--accent); }
+.topbar a:hover, .topbar button:hover { color: var(--accent); }
+.topbar .spacer { flex: 1 1 auto; }
