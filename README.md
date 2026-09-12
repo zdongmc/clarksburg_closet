@@ -58,6 +58,39 @@ volunteers, and several were settled the hard way.
 - **Nothing records which volunteer did the work.** Deliberate, given the shared
   passcode — and still the open question worth settling.
 
+## Deploying on Vercel
+
+The project is linked to `zdongmc/clarksburg_closet` and deploys `main` to
+production on every push.
+
+The database is a Neon instance from the Vercel Marketplace
+(`vercel integration add neon`). It sets **`POSTGRES_URL`** on the project
+itself — which is the name this app reads, so nothing needed renaming. It also
+sets a dozen other aliases (`DATABASE_URL`, `PG*`, `POSTGRES_URL_NON_POOLING`);
+ignore them, they point at the same database.
+
+Two things are set by hand, since only the closet knows them:
+
+```bash
+vercel env add VOLUNTEER_PASSCODE production
+vercel env add SESSION_SECRET production      # node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+**Environment variables bind at build time**, so anything added after a
+deployment needs a redeploy before it takes effect.
+
+### Gotchas found the hard way
+
+- `pnpm db:push` prompts for confirmation, because `drizzle.config.ts` sets
+  `strict: true`. For an unattended push use `pnpm exec drizzle-kit push --force`.
+  Read what it plans to do first — `--force` also auto-approves data loss.
+- `vercel env add <NAME> preview` refuses to run non-interactively. It suggests
+  omitting the branch argument to target all preview branches, then rejects that
+  exact command and loops. Set Preview values in the dashboard instead.
+- `vercel redeploy` on this project fails with "The provided GitHub repository
+  can't be found" even though the git link works. Push a commit, or use
+  `vercel deploy --prod`.
+
 ## Checks
 
 ```bash
