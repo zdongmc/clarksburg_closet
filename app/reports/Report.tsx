@@ -109,8 +109,13 @@ export default function Report({ data }: { data: ReportData }) {
       ['Requests filled', ytd.fil, `${ytd.rec} received`],
       [
         'Average per request',
-        ytd.rec ? (ytd.people / ytd.rec).toFixed(1) : '—',
-        'people on a request',
+        // Both sides must be on the same basis. People are counted in the
+        // month a request was FILLED, so dividing by requests *received*
+        // mixes bases -- with a queue that still has open requests it reads
+        // as nonsense (0.4 people on a request). The mockup could not show
+        // this because every sample request was filled.
+        ytd.fil ? (ytd.people / ytd.fil).toFixed(1) : '—',
+        'people on a filled request',
       ],
     ];
   } else {
