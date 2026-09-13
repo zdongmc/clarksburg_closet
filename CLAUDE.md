@@ -46,7 +46,24 @@ Sizes are not one shared vocabulary, so the columns are not either:
 
 `requests.seq` is a Postgres identity column; the displayed `#2026-0413` is composed at read time from the year in `receivedOn` plus the padded seq (`lib/format.ts`). Nothing is stored, so nothing can collide or drift.
 
+## Deployed
+
+Live at **https://clarksburgcloset.vercel.app**, deployed 2026-09-11.
+
+- **GitHub**: `zdongmc/clarksburg_closet`. Push to `main` deploys to production.
+- **Vercel**: project `clarksburg_closet` under the team `jethrolams-projects`.
+- **Database**: Neon (`neon-aero-ferry`) from the Vercel Marketplace. It sets `POSTGRES_URL` itself, which is the name the app already read.
+- **Passcode**: the closet's street number. Guessable by anyone who knows the address, and it gates real recipients' names, phone numbers and prayer requests — worth revisiting before real intake.
+
+The `vercel` CLI is authenticated and the repo is linked (`.vercel/`, gitignored). Note that the **Vercel MCP connector cannot see this project** — it is scoped to `summer_project` and returns 404 for everything else, so never conclude from `list_projects` that something does not exist. Use the CLI or curl the live URL.
+
+See README.md for the deployment gotchas that cost time (drizzle `--force`, the `vercel env add ... preview` loop, `vercel redeploy` failing on a healthy git link).
+
 ## Where this left off
+
+**The production database holds 369 seeded sample requests** with invented names, phone numbers and prayer requests. They must be cleared before real intake begins; there is no reset script yet.
+
+`SESSION_SECRET` is set on Production and Development but **not Preview** — the CLI would not do it. Harmless unless PR previews get used.
 
 Still open, in rough priority order:
 
