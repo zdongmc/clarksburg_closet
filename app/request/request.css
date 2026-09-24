@@ -147,7 +147,7 @@
     background: var(--accent-soft);
     border: 1px solid var(--accent);
     padding: 7px 12px;
-    min-height: 38px;
+    min-height: 44px;
     cursor: pointer;
     white-space: nowrap;
   }
@@ -212,7 +212,7 @@
   .chip {
     font-family: var(--mono);
     font-size: 0.95rem;
-    min-height: 40px;
+    min-height: 44px;
     background: var(--sunk);
     color: var(--ink);
     border: 1px solid var(--rule-strong);
@@ -249,18 +249,24 @@
   .recip-head h3 { font-family: var(--display); font-size: 1.05rem; font-weight: 700; margin: 0; }
   .recip-num { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); }
 
+  /* Looks like a link, but keeps a 44px touch target: the underline is text
+     decoration rather than a border, so it stays under the words. */
   .link-btn {
     font-family: var(--body);
     font-size: 0.85rem;
     color: var(--ink-soft);
     background: none;
     border: none;
-    border-bottom: 1px solid var(--rule-strong);
-    padding: 0 0 1px;
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 3px;
+    padding: 0;
+    min-height: 44px;
     cursor: pointer;
   }
 
-  .link-btn:hover { color: var(--flag); border-color: var(--flag); }
+  .link-btn:hover { color: var(--flag); text-decoration-color: var(--flag); }
+  td .link-btn { white-space: nowrap; }
 
   .age-row { display: grid; grid-template-columns: 5.5rem 1fr; gap: 8px; }
 
@@ -279,6 +285,7 @@
     color: var(--accent-ink);
     border: 1px solid var(--accent);
     padding: 11px 18px;
+    min-height: 44px;
     cursor: pointer;
   }
 
@@ -369,6 +376,14 @@
 
   @media (max-width: 520px) {
     .recip-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+
+    /* Fit the sizing chart, "Use this" column included, on a phone screen. */
+    dialog { width: calc(100% - 16px); }
+    .dlg-head, .dlg-body { padding-left: 14px; padding-right: 14px; }
+    table { font-size: 0.84rem; }
+    th, td { padding-right: 7px; }
+    th { white-space: normal; vertical-align: bottom; }
+    th:last-child, td:last-child { padding-right: 0; text-align: right; }
   }
 
   @media (prefers-reduced-motion: reduce) {
