@@ -26,7 +26,7 @@ Schema lives in one file, `db/schema.ts`, and is applied with `drizzle-kit push`
 pnpm install
 cp .env.example .env.local     # then fill in the three values
 pnpm db:push                   # create the tables
-pnpm db:seed                   # optional: sample requests + two closed fiscal years
+pnpm db:seed                   # sample data -- never against production, which .env.local points at
 pnpm dev
 ```
 

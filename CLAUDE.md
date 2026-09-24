@@ -61,7 +61,9 @@ See README.md for the deployment gotchas that cost time (drizzle `--force`, the 
 
 ## Where this left off
 
-**The production database holds 369 seeded sample requests** with invented names, phone numbers and prayer requests. They must be cleared before real intake begins; there is no reset script yet.
+**The production database was emptied on 2026-09-24**, ready for real intake: the 369 seeded sample requests were truncated and the identity counters restarted, so the first real request is `#2026-0001`.
+
+**Do not run `pnpm db:seed` locally** — `.env.local` points at the same Neon database as production, so seeding from a laptop fills the live queue and reports with invented people. Seed only a separate Neon branch.
 
 `SESSION_SECRET` is set on Production and Development but **not Preview** — the CLI would not do it. Harmless unless PR previews get used.
 
