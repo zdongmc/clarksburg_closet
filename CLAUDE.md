@@ -53,7 +53,7 @@ Live at **https://clarksburgcloset.vercel.app**, deployed 2026-09-11.
 - **GitHub**: `zdongmc/clarksburg_closet`. Push to `main` deploys to production.
 - **Vercel**: project `clarksburg_closet` under the team `jethrolams-projects`.
 - **Database**: Neon (`neon-aero-ferry`) from the Vercel Marketplace. It sets `POSTGRES_URL` itself, which is the name the app already read.
-- **Passcode**: the closet's street number. Guessable by anyone who knows the address, and it gates real recipients' names, phone numbers and prayer requests — worth revisiting before real intake.
+- **Passcode**: the closet's street number. Guessable by anyone who knows the address, and it gates real recipients' names, phone numbers and prayer requests — change it before real intake (open item 1).
 
 The `vercel` CLI is authenticated and the repo is linked (`.vercel/`, gitignored). Note that the **Vercel MCP connector cannot see this project** — it is scoped to `summer_project` and returns 404 for everything else, so never conclude from `list_projects` that something does not exist. Use the CLI or curl the live URL.
 
@@ -61,7 +61,16 @@ See README.md for the deployment gotchas that cost time (drizzle `--force`, the 
 
 ## Where this left off
 
-**The production database was emptied on 2026-09-24**, ready for real intake: the 369 seeded sample requests were truncated and the identity counters restarted, so the first real request is `#2026-0001`.
+**Last session: 2026-09-24.** The app is ready for real intake apart from the passcode (item 1 below). That session:
+
+- **Made the request form phone-friendly.** It already reflowed to one column with no horizontal scroll; the fixes were touch targets (every button, including the link-style "Use this" / "Close" / "Remove", is now at least 44px) and the sizing chart, which clipped its "Use this" column below 375px. Verified by emulating 320, 375 and 768px widths.
+- **Published a QR code** for the request form at `/request-qr.png` (see Branding).
+- **Reorganised the repo**: mockups to `design/mockups/`, the paper form to `design/reference/`, one logo in `public/`.
+- **Emptied the production database** (below).
+
+On the closet's iPad, volunteers reach the queue by opening `/queue` once, signing in, and using Share → Add to Home Screen. The session cookie lasts 30 days.
+
+**The production database was emptied on 2026-09-24** — the queue was confirmed empty afterwards. The 369 seeded sample requests were truncated and the identity counters restarted, so the first real request is `#2026-0001`.
 
 **Do not run `pnpm db:seed` locally** — `.env.local` points at the same Neon database as production, so seeding from a laptop fills the live queue and reports with invented people. Seed only a separate Neon branch.
 
@@ -69,10 +78,11 @@ See README.md for the deployment gotchas that cost time (drizzle `--force`, the 
 
 Still open, in rough priority order:
 
-1. **Spanish version of the request form** — planned, does not exist. `lib/sizes.ts` is already the single place the option lists come from, so a translated form shares the vocabulary rather than forking it.
-2. **Volunteer identity** — nothing records *who* did anything: who filled a request, or who wrote a note. The shared passcode was chosen knowing this. One decision covers both; `lib/auth.ts` is where it lands. Cheap to capture at the click, impossible to reconstruct later.
-3. **Email confirmations.** The form tells the requester their confirmation comes by email and the thank-you screen repeats it, but **nothing is sent yet** — no mail provider is wired up.
-4. The public website still advertises a 4-week turnaround; the new form does not.
+1. **Change the volunteer passcode before real intake.** It is still the street number. Set a new `VOLUNTEER_PASSCODE` in Vercel and redeploy; no code change.
+2. **Email confirmations — waiting on the user.** The form and thank-you screen promise an email that nothing sends. The blocker is a sending domain: mail cannot come from `vercel.app`, so it needs SPF/DKIM records on **clarksburgcloset.org**, and the user is finding out who manages that DNS. Proposed plan, not yet approved: **Resend** from the Vercel Marketplace (`resend/resend-email`), sending from something like `requests@clarksburgcloset.org` with replies to `info@`, called from `submitRequest` in `app/request/actions.ts` after the insert — a failed send must never fail the submission. Open decisions: the addresses; whether the email repeats sizes (the prayer request stays out); and two optional extras on the same setup, a new-request alert to volunteers and a filled/declined email to the requester. If real intake starts first, soften the form's wording to "we'll contact you by email or phone".
+3. **Volunteer identity** — nothing records *who* did anything: who filled a request, or who wrote a note. The shared passcode was chosen knowing this. One decision covers both; `lib/auth.ts` is where it lands. Cheap to capture at the click, impossible to reconstruct later.
+4. **Spanish version of the request form — on hold** by the user's choice (2026-09-24). When it resumes, `lib/sizes.ts` is already the single place the option lists come from, so a translated form shares the vocabulary rather than forking it.
+5. The public website still advertises a 4-week turnaround; the new form does not.
 
 ## About Clarksburg Closet
 
