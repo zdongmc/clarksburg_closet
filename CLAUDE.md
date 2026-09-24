@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-This repo holds a **working application**: a Next.js 15 app on Neon Postgres with Drizzle, built from the mockups that are still here as the design record. It also keeps the reference material (the current paper intake form) and the ministry's logo.
+This repo holds a **working application**: a Next.js 15 app on Neon Postgres with Drizzle, built from the mockups that are still here as the design record (`design/mockups/`). It also keeps the reference material (the current paper intake form, `design/reference/`) and the ministry's logo (`public/logo.png`).
 
 The size vocabulary and form behaviour below were settled with the volunteers and should be treated as decided, not re-litigated.
 
@@ -86,11 +86,13 @@ Clarksburg Closet (https://www.cedarbrook.org/clarksburgcloset) is a free clothi
 
 ### Branding
 
-`logo.png` (360×360, white background, no transparency) — navy `#00467F` hanger, green `#5C8727` "CLARKSBURG". Navy is the accent throughout the mockups. The mockups embed the logo as a base64 data URI rather than linking it, because published artifacts cannot load local files.
+`public/logo.png` (360×360, white background, no transparency) — navy `#00467F` hanger, green `#5C8727` "CLARKSBURG". Navy is the accent throughout the mockups. The mockups embed the logo as a base64 data URI rather than linking it, because published artifacts cannot load local files. There is one copy of the logo; the app serves it at `/logo.png`.
+
+`public/request-qr.png` is a printable QR code for the request form — logo, heading, code, and the address in text — served at `/request-qr.png` so volunteers and agencies can download it. It is drawn by `scripts/make-qr.py`; **rerun that if the form's address changes** (e.g. a clarksburgcloset.org domain), since every printed copy then points at the old one.
 
 ## Existing reference: Clothing Request Form
 
-`Clothing_Request_Form_2025` (PDF, no file extension, repo root) is the current paper intake form. Read it with `pdftotext -layout Clothing_Request_Form_2025 -`.
+`design/reference/Clothing_Request_Form_2025.pdf` is the current paper intake form. Read it with `pdftotext -layout design/reference/Clothing_Request_Form_2025.pdf -`.
 
 Its weaknesses are what the new system exists to fix: shirt/pant/shoe sizes are blank lines, and a single Adult/Youth checkbox covers all three at once. A case worker writes "10" and nobody downstream knows whether that is a youth 10, a women's 10, or a shoe size in the wrong row.
 
@@ -201,7 +203,7 @@ Spanish-speaking households are a significant part of the population served, so 
 
 ## Mockups
 
-Static, self-contained HTML (embedded CSS + vanilla JS, no build tools). **These are now the design record, not the product** — the app was built from them and the app is what ships. Keep them for the reasoning they carry; when a behaviour changes, change the app and note it here rather than trying to keep four HTML files in step.
+Static, self-contained HTML in `design/mockups/` (embedded CSS + vanilla JS, no build tools). **These are now the design record, not the product** — the app was built from them and the app is what ships. Keep them for the reasoning they carry; when a behaviour changes, change the app and note it here rather than trying to keep four HTML files in step.
 
 | File | What it is |
 | --- | --- |
@@ -257,7 +259,7 @@ Selecting a month does not reduce the charts to one bar; it highlights that mont
 Serve over http; do **not** open from disk:
 
 ```bash
-python3 -m http.server 8787
+python3 -m http.server 8787 -d design/mockups
 # then http://localhost:8787/dashboard-mockup.html
 ```
 
@@ -281,5 +283,7 @@ Element heights can be probed the same way — inject a script that writes `offs
   --window-size=1000,1200 --screenshot=/tmp/shot.png \
   "http://localhost:8787/report-mockup.html"
 ```
+
+**Headless Chrome will not lay out narrower than 500px**, whatever `--window-size` says — a phone-width screenshot comes back cropped, not reflowed. For phone widths, drive Chrome with `puppeteer-core` and `page.emulate({ viewport: { width: 375, isMobile: true, hasTouch: true, ... } })`, then measure `scrollWidth` and button heights rather than trusting the picture.
 
 This is worth doing every time. Estimating heights from the CSS wasted several rounds on the pick sheet; one measurement settled it. Screenshotting the report caught mojibake, a panel that would not hide, and ugly axis ticks that reading the code had not revealed.
