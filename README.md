@@ -81,9 +81,15 @@ deployment needs a redeploy before it takes effect.
 
 ### Gotchas found the hard way
 
-- `pnpm db:push` prompts for confirmation, because `drizzle.config.ts` sets
-  `strict: true`. For an unattended push use `pnpm exec drizzle-kit push --force`.
-  Read what it plans to do first — `--force` also auto-approves data loss.
+- **Do not run `pnpm db:push` (or `drizzle-kit push`) against the live
+  database.** Since the Neon database moved to a Postgres that names its NOT
+  NULL constraints, drizzle-kit 0.30.2 reads every one of them as unwanted and
+  plans to `DROP CONSTRAINT` all of them alongside whatever change you meant —
+  seen 2026-10-22, when adding one column produced 40-odd drops. `--force`
+  would approve the lot without asking. Until drizzle-kit is upgraded and its
+  plan comes back clean, apply a schema change as the one hand-written
+  statement it needs (`ALTER TABLE ... ADD COLUMN IF NOT EXISTS ...`), and keep
+  `db/schema.ts` in step so the types match.
 - `vercel env add <NAME> preview` refuses to run non-interactively. It suggests
   omitting the branch argument to target all preview branches, then rejects that
   exact command and loops. Set Preview values in the dashboard instead.

@@ -3,7 +3,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { DECLINE_REASONS, STATUS_LABEL, type RequestStatus } from '@/db/schema';
+import {
+  DECLINE_REASONS,
+  RECIPIENT_FLAGS,
+  RECIPIENT_FLAG_LABEL,
+  RECIPIENT_FLAG_SYMBOL,
+  STATUS_LABEL,
+  type RecipientFlag,
+  type RequestStatus,
+} from '@/db/schema';
 import { fmtDate, todayISO, waitText } from '@/lib/format';
 import type { QueueRequest } from '@/lib/queries';
 
@@ -15,6 +23,7 @@ import {
   restoreRequest,
   saveNote,
   setCrisis,
+  setRecipientFlags,
 } from './actions';
 import { buildPickSheet, isIOS, pickSheetName } from './pickSheet';
 
@@ -102,6 +111,19 @@ export default function Queue({ initial }: { initial: QueueRequest[] }) {
     run.then(() => router.refresh()).catch(() => {
       setToast({ msg: 'That change did not save. Check the connection and try again.' });
       router.refresh();
+    });
+  }
+
+  /** Tick or untick one of a recipient's marks for whoever fills the order. */
+  function toggleFlag(r: QueueRequest, i: number, flag: RecipientFlag, on: boolean) {
+    const p = r.people[i];
+    const flags = RECIPIENT_FLAGS.filter((f) => (f === flag ? on : p.flags.includes(f)));
+    apply(r.id, { people: r.people.map((x, j) => (j === i ? { ...x, flags } : x)) });
+    after(setRecipientFlags(p.id, flags), {
+      msg:
+        `${p.name}: ${RECIPIENT_FLAG_LABEL[flag].toLowerCase()} ${on ? 'marked' : 'unmarked'}.` +
+        // A sheet already in someone's hands does not change by itself.
+        (r.status === 'progress' ? ' Print the sheet again to include it.' : ''),
     });
   }
 
@@ -464,16 +486,43 @@ export default function Queue({ initial }: { initial: QueueRequest[] }) {
                   </div>
                   <div className="rlist">
                     {r.people.map((p, i) => (
-                      <div className="rrow" key={i}>
+                      <div className="rrow" key={p.id}>
                         <div className="who">
                           <span className="rn">{p.name}</span>
                           <span className="ra">{p.age}</span>
+                          {p.flags.length ? (
+                            <span className="marks">
+                              {p.flags.map((f) => (
+                                <span key={f} className={'mark m-' + f}>
+                                  <span aria-hidden="true">{RECIPIENT_FLAG_SYMBOL[f]}</span>
+                                  {RECIPIENT_FLAG_LABEL[f]}
+                                </span>
+                              ))}
+                            </span>
+                          ) : null}
                         </div>
                         <SizeCell k="Shirt" v={p.shirt} />
                         <SizeCell k="Pants" v={p.pant} />
                         <SizeCell k="Shoes" v={p.shoe} />
                         <SizeCell k="Diapers" v={p.diaper} />
                         {p.flag ? <div className="rflag">{p.flag}</div> : null}
+                        {/* Marks for whoever fills the order; each prints on
+                            this recipient's slip. */}
+                        <div className="mark-checks">
+                          {RECIPIENT_FLAGS.map((f) => (
+                            <label
+                              key={f}
+                              className={'mark-check' + (p.flags.includes(f) ? ' on' : '')}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={p.flags.includes(f)}
+                                onChange={(e) => toggleFlag(r, i, f, e.target.checked)}
+                              />
+                              {RECIPIENT_FLAG_LABEL[f]}
+                            </label>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>

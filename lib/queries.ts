@@ -2,7 +2,7 @@ import { asc, desc, eq } from 'drizzle-orm';
 
 import { db } from '@/db';
 import { agencies, recipients, requesters, requests } from '@/db/schema';
-import type { DeclineReason, RequestStatus } from '@/db/schema';
+import type { DeclineReason, RecipientFlag, RequestStatus } from '@/db/schema';
 import {
   adultSizeFlag,
   ageLine,
@@ -15,6 +15,7 @@ import {
 
 /** One recipient, already reduced to the strings the queue and the PDF print. */
 export type QueuePerson = {
+  id: string;
   name: string;
   /** "Girl · 9 yr" */
   age: string;
@@ -26,6 +27,8 @@ export type QueuePerson = {
   /** The adult-size-for-a-child note, if it applies. */
   flag: string | null;
   itemsNeeded: string;
+  /** Volunteer marks: crisis, extra love, include toiletries. */
+  flags: RecipientFlag[];
 };
 
 export type QueueRequest = {
@@ -82,6 +85,7 @@ export async function loadQueue(): Promise<QueueRequest[]> {
   for (const p of people) {
     const list = byRequest.get(p.requestId) ?? [];
     list.push({
+      id: p.id,
       name: p.name,
       age: ageLine(p),
       shirt: shirtText(p),
@@ -90,6 +94,7 @@ export async function loadQueue(): Promise<QueueRequest[]> {
       diaper: diaperText(p),
       flag: adultSizeFlag(p),
       itemsNeeded: p.itemsNeeded,
+      flags: p.flags,
     });
     byRequest.set(p.requestId, list);
   }

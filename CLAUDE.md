@@ -20,7 +20,7 @@ Run it with `pnpm install`, a filled-in `.env.local`, `pnpm db:push`, then `pnpm
 
 Where things live:
 
-- `db/schema.ts` — the whole schema in one file, applied with `drizzle-kit push`. No migration files.
+- `db/schema.ts` — the whole schema in one file. No migration files. **Never `drizzle-kit push` to the live database** — this drizzle-kit version plans to drop every NOT NULL constraint along with the intended change (README, Gotchas). Apply changes as one hand-written `ALTER TABLE` and keep the schema file in step.
 - `lib/sizes.ts` — the size vocabulary. Simultaneously the form's dropdowns, the values the database accepts, and the key for reading sizes off past paper requests.
 - `lib/format.ts` — request numbers, size display strings, fiscal-year arithmetic.
 - `lib/queries.ts` / `lib/reports.ts` — the queue and the report figures.
@@ -165,7 +165,7 @@ Shoe size is **multi-select** — a requester ticks every size that would fit (e
 - **Agency** — organization name (optional; null for individuals self-referring). Most requests come through agencies, each with multiple agents/case workers. Use a type-ahead matched against existing agencies (with "add new" fallback) to avoid name fragmentation ("Mercy Health" vs "Mercy Health Svc").
 - **Requester** (agent) — name, phone, email, optionally linked to an Agency. Multiple requesters can belong to the same agency.
 - **Request** — one submission: date, requester, recipients, status, crisis flag, prayer request, and **volunteer notes** (all request-level, not per-recipient).
-- **Recipient** — per-request entry: name, gender, age (number + unit: years or months), shirt size, pant size, shoe sizes (**multiple**), diaper size (nullable), items needed/additional info. No persistent cross-request recipient/household record for now.
+- **Recipient** — per-request entry: name, gender, age (number + unit: years or months), shirt size, pant size, shoe sizes (**multiple**), diaper size (nullable), items needed/additional info, and the volunteers' **marks** (below). No persistent cross-request recipient/household record for now.
 
 ### Schema notes for whenever the DB gets built
 
@@ -204,6 +204,7 @@ Notes are searchable from the queue. The field stores when it was last updated b
 Volunteer-set, from the queue: **Not started → Printed → Filled**, plus **Declined** (with a required reason) and **Crisis** (a priority flag, not a status).
 
 - **Crisis** is set by volunteers, never by the requester, and never visible on the request form. It lives on the request, not the requester — an agency that sends one urgent case is not permanently urgent. It moves the request to the top of the queue and prints on the sheet.
+- **Recipient marks** (added 2026-10-22) — three checkboxes per recipient, set by volunteers in the queue's expanded view: **Crisis**, **Extra love**, **Include toiletries**. Stored as `recipients.flags text[]` (`RECIPIENT_FLAGS` in `db/schema.ts`). They show as chips under the recipient's name in the queue and print as badges beside the age on **that recipient's slip**, for whoever fills the order: crisis solid black, extra love outlined with a drawn heart (Helvetica has no heart glyph), toiletries outlined. Recipient crisis says *which person* is urgent; it does **not** move the request up the queue — the request-level Crisis box still does that, and the two are independent. A mark changed after printing does not reach the sheet already printed, so the toast says to print again.
 - **Declining requires a reason** — the requester will be told, and "why was I turned down?" needs an answer months later. Reasons: already received this season, duplicate, outside the area served, could not reach the requester, items not available, other.
 - **Partial fulfilment does not exist — confirmed.** Orders are never filled partially, so status lives on the **request**, not on each recipient. A request is filled or it is not. Do not add a per-recipient status column.
 - **Nothing records which volunteer did the work.** Deliberate, but cheap to add at the click and impossible to reconstruct later.

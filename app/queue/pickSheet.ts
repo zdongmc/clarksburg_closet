@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 
+import { RECIPIENT_FLAGS, type RecipientFlag } from '@/db/schema';
 import { DOT, fmtDate } from '@/lib/format';
 import type { QueuePerson, QueueRequest } from '@/lib/queries';
 
@@ -15,7 +16,7 @@ import type { QueuePerson, QueueRequest } from '@/lib/queries';
  * form caps at 10, so a sheet is never longer than that.
  *
  * Output is black and white by design, to save ink -- no solid fills anywhere
- * except the CRISIS badge, and the only colour is the logo.
+ * except the CRISIS badges and the small heart, and the only colour is the logo.
  */
 
 const PT = { W: 612, H: 792, M: 36 };
@@ -148,6 +149,53 @@ function drawHeader(doc: jsPDF, r: QueueRequest, y: number) {
   }
 }
 
+const MARK_TEXT: Record<RecipientFlag, string> = {
+  crisis: 'CRISIS',
+  'extra-love': 'EXTRA LOVE',
+  toiletries: '+ TOILETRIES',
+};
+
+/** A small solid heart: two circles over a downward triangle. */
+function heart(doc: jsPDF, cx: number, cy: number, s: number) {
+  doc.setFillColor(0, 0, 0);
+  doc.circle(cx - s * 0.5, cy - s * 0.3, s * 0.55, 'F');
+  doc.circle(cx + s * 0.5, cy - s * 0.3, s * 0.55, 'F');
+  doc.triangle(cx - s * 1.03, cy - s * 0.1, cx + s * 1.03, cy - s * 0.1, cx, cy + s, 'F');
+}
+
+/**
+ * A recipient's volunteer marks as badges, right-aligned on a baseline: crisis
+ * solid black like the request's own badge, the others outlined, extra love
+ * with a drawn heart (Helvetica has no heart glyph).
+ */
+function drawMarks(doc: jsPDF, flags: RecipientFlag[], right: number, base: number) {
+  const bh = 12;
+  const gap = 4;
+  let bx = right;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(6.5);
+  for (const f of [...RECIPIENT_FLAGS].reverse()) {
+    if (!flags.includes(f)) continue;
+    const label = MARK_TEXT[f];
+    const iconW = f === 'extra-love' ? 9 : 0;
+    const bw = doc.getTextWidth(label) + 10 + iconW;
+    bx -= bw;
+    const top = base - 8.5;
+    if (f === 'crisis') {
+      doc.setFillColor(0, 0, 0);
+      doc.rect(bx, top, bw, bh, 'F');
+      doc.setTextColor(255);
+    } else {
+      doc.setLineWidth(0.8);
+      doc.rect(bx, top, bw, bh);
+    }
+    if (iconW) heart(doc, bx + 8, top + bh / 2 - 0.5, 2.6);
+    doc.text(label, bx + 5 + iconW, base);
+    doc.setTextColor(0);
+    bx -= gap;
+  }
+}
+
 /**
  * One slip per recipient, each self-contained and traceable -- requester name,
  * agency, request number, "3 of 5" -- so a slip separated from the others on
@@ -210,6 +258,9 @@ function drawSlip(
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.text(person.age, x + pad, cy);
+  // The volunteer's marks for this person sit beside the age, under the name,
+  // where whoever is filling the order looks first.
+  if (person.flags.length) drawMarks(doc, person.flags, x + w - pad, cy);
 
   // 2x2 size grid.
   cy += 8;

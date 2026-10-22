@@ -6,7 +6,13 @@ import { cookies } from 'next/headers';
 import { z } from 'zod';
 
 import { db } from '@/db';
-import { DECLINE_REASONS, REQUEST_STATUSES, requests } from '@/db/schema';
+import {
+  DECLINE_REASONS,
+  RECIPIENT_FLAGS,
+  REQUEST_STATUSES,
+  recipients,
+  requests,
+} from '@/db/schema';
 import { SESSION_COOKIE, verifySession } from '@/lib/auth';
 import { todayISO } from '@/lib/format';
 
@@ -85,6 +91,21 @@ export async function saveNote(requestId: string, text: string) {
     notes,
     notesUpdatedAt: notes ? new Date() : null,
   });
+}
+
+/**
+ * A recipient's marks for whoever fills the order -- crisis, extra love,
+ * include toiletries. Stored in list order whatever order they were ticked,
+ * so the slip always prints them the same way.
+ */
+export async function setRecipientFlags(recipientId: string, flags: string[]) {
+  await requireVolunteer();
+  const chosen = new Set(z.array(z.enum(RECIPIENT_FLAGS)).parse(flags));
+  await db
+    .update(recipients)
+    .set({ flags: RECIPIENT_FLAGS.filter((f) => chosen.has(f)) })
+    .where(eq(recipients.id, id.parse(recipientId)));
+  revalidatePath('/queue');
 }
 
 /** Undo, for the toast. Restores exactly the fields an action changed. */

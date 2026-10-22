@@ -48,6 +48,26 @@ export const DECLINE_REASONS = [
 ] as const;
 export type DeclineReason = (typeof DECLINE_REASONS)[number];
 
+// Volunteer-set, per recipient: marks for whoever fills the order, printed as
+// symbols on that recipient's slip. Recipient crisis says WHICH person is
+// urgent; the request's own crisis flag is still what moves it up the queue.
+// None of these is a status -- a request is still filled or not as a whole.
+export const RECIPIENT_FLAGS = ['crisis', 'extra-love', 'toiletries'] as const;
+export type RecipientFlag = (typeof RECIPIENT_FLAGS)[number];
+
+export const RECIPIENT_FLAG_LABEL: Record<RecipientFlag, string> = {
+  crisis: 'Crisis',
+  'extra-love': 'Extra love',
+  toiletries: 'Include toiletries',
+};
+
+/** On screen only: the pick sheet draws its own, since its font has no such glyphs. */
+export const RECIPIENT_FLAG_SYMBOL: Record<RecipientFlag, string> = {
+  crisis: '\u26a0\ufe0f',
+  'extra-love': '\u2764\ufe0f',
+  toiletries: '\u{1f9fc}',
+};
+
 // ---------------------------------------------------------------------------
 // agencies -- optional, because a household may self-refer. Matched by a
 // type-ahead against existing rows so the list does not fragment into
@@ -179,6 +199,9 @@ export const recipients = pgTable(
 
     /** Written by the requester, at recipient level. */
     itemsNeeded: text('items_needed').notNull().default(''),
+
+    /** Set by volunteers in the queue; see RECIPIENT_FLAGS. */
+    flags: text('flags').array().$type<RecipientFlag[]>().notNull().default(sql`'{}'::text[]`),
   },
   (t) => [index('recipients_request_idx').on(t.requestId)],
 );

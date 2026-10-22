@@ -438,6 +438,44 @@
     padding: 4px 9px;
   }
 
+  /* A recipient's marks: chips under the name, checkboxes across the row. */
+  .marks { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border: 1px solid var(--rule-strong);
+    color: var(--ink);
+    background: var(--sunk);
+  }
+  .mark.m-crisis { color: var(--red); border-color: var(--red); background: var(--red-soft); }
+  .mark.m-extra-love { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .mark.m-toiletries { color: var(--green); border-color: var(--green); background: var(--green-soft); }
+
+  .mark-checks {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 20px;
+    border-top: 1px dashed var(--rule);
+    margin-top: 4px;
+  }
+  .mark-check {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 44px;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .mark-check input { width: 1.4rem; height: 1.4rem; accent-color: var(--accent); cursor: pointer; }
+  .mark-check.on { color: var(--ink); font-weight: 600; }
+
   .prayer-line {
     font-size: 0.9rem;
     font-style: italic;
