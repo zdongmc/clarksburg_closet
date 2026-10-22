@@ -8,7 +8,7 @@ This repo holds a **working application**: a Next.js 15 app on Neon Postgres wit
 
 The size vocabulary and form behaviour below were settled with the volunteers and should be treated as decided, not re-litigated.
 
-Run it with `pnpm install`, a filled-in `.env.local`, `pnpm db:push`, then `pnpm dev`. See `README.md`.
+Run it with `pnpm install`, a filled-in `.env.local`, then `pnpm dev`. `pnpm db:push` is only for creating the tables in a **new, empty** database. `.env.local` points at production, where pushing is unsafe (see *Where things live*). See `README.md`.
 
 ## The application
 
@@ -61,12 +61,15 @@ See README.md for the deployment gotchas that cost time (drizzle `--force`, the 
 
 ## Where this left off
 
-**Last session: 2026-09-24.** The app is ready for real intake apart from the passcode (item 1 below). That session:
+**Last session: 2026-10-22.** The app is still ready for real intake apart from the passcode (item 1 below). The live queue was still empty at the end of the session, so nothing below has yet met a real request. That session:
 
-- **Made the request form phone-friendly.** It already reflowed to one column with no horizontal scroll; the fixes were touch targets (every button, including the link-style "Use this" / "Close" / "Remove", is now at least 44px) and the sizing chart, which clipped its "Use this" column below 375px. Verified by emulating 320, 375 and 768px widths.
-- **Published a QR code** for the request form at `/request-qr.png` (see Branding).
-- **Reorganised the repo**: mockups to `design/mockups/`, the paper form to `design/reference/`, one logo in `public/`.
-- **Emptied the production database** (below).
+- **Made the request form bilingual** (English / Español). See *Language / localization* for how it works. A request made on the Spanish form starts with the volunteer note "Form filled out in Spanish."
+- **Added recipient marks**: Coat, Include toiletries, Extra love. These are checkboxes on each recipient in the queue, printed as **C**, **T** and a heart on that person's slip. Marking a request crisis ticks Extra love for everyone on it. See *Status / fulfilment*.
+- **Took CRISIS off the slips.** Slips are attached to the bags and go home with the families, so CRISIS now prints in the header only, and nothing on a slip may read as a warning.
+- **Fixed a hydration mismatch on the request form**: the first recipient's field ids differed between the server and the browser.
+- **Found that `drizzle-kit push` is unsafe on this database**: it planned to drop every NOT NULL constraint. The `recipients.flags` column was added by hand instead. See README, Gotchas.
+
+The session before (2026-09-24) made the form phone-friendly, published the QR code, reorganised the repo under `design/`, and emptied the production database.
 
 On the closet's iPad, volunteers reach the queue by opening `/queue` once, signing in, and using Share → Add to Home Screen. The session cookie lasts 30 days.
 
@@ -81,7 +84,10 @@ Still open, in rough priority order:
 1. **Change the volunteer passcode before real intake.** It is still the street number. Set a new `VOLUNTEER_PASSCODE` in Vercel and redeploy; no code change.
 2. **Email confirmations — waiting on the user.** The form and thank-you screen promise an email that nothing sends. The blocker is a sending domain: mail cannot come from `vercel.app`, so it needs SPF/DKIM records on **clarksburgcloset.org**, and the user is finding out who manages that DNS. Proposed plan, not yet approved: **Resend** from the Vercel Marketplace (`resend/resend-email`), sending from something like `requests@clarksburgcloset.org` with replies to `info@`, called from `submitRequest` in `app/request/actions.ts` after the insert — a failed send must never fail the submission. Open decisions: the addresses; whether the email repeats sizes (the prayer request stays out); and two optional extras on the same setup, a new-request alert to volunteers and a filled/declined email to the requester. If real intake starts first, soften the form's wording to "we'll contact you by email or phone".
 3. **Volunteer identity** — nothing records *who* did anything: who filled a request, or who wrote a note. The shared passcode was chosen knowing this. One decision covers both; `lib/auth.ts` is where it lands. Cheap to capture at the click, impossible to reconstruct later.
-4. The public website still advertises a 4-week turnaround; the new form does not.
+4. **Have a Spanish speaker read the Spanish form.** The wording (`app/request/i18n.tsx`) was written in-session and has not been reviewed by a native speaker.
+5. **Watch the first real requests**: none of the 2026-10-22 work has met live data. Check that a Spanish-form request arrives with its note, that the marks save and print, that ticking Crisis adds the hearts, and that the drawn heart (about 2.5 mm) is big enough on the closet's printer. If not, enlarge it in `heart()` in `app/queue/pickSheet.ts`.
+6. **Upgrade drizzle-kit** until a `push` plan against the live database comes back clean. Until then, apply schema changes by hand (README, Gotchas).
+7. The public website still advertises a 4-week turnaround; the new form does not.
 
 ## About Clarksburg Closet
 
