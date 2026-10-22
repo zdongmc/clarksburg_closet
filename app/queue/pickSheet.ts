@@ -16,7 +16,7 @@ import type { QueuePerson, QueueRequest } from '@/lib/queries';
  * form caps at 10, so a sheet is never longer than that.
  *
  * Output is black and white by design, to save ink -- no solid fills anywhere
- * except the CRISIS badges and the small heart, and the only colour is the logo.
+ * except the CRISIS badge and the small heart, and the only colour is the logo.
  */
 
 const PT = { W: 612, H: 792, M: 36 };
@@ -149,10 +149,11 @@ function drawHeader(doc: jsPDF, r: QueueRequest, y: number) {
   }
 }
 
-const MARK_TEXT: Record<RecipientFlag, string> = {
-  crisis: 'CRISIS',
-  'extra-love': 'EXTRA LOVE',
-  toiletries: '+ TOILETRIES',
+/** Null draws a heart instead of a letter. */
+const MARK_LETTER: Record<RecipientFlag, string | null> = {
+  coat: 'C',
+  toiletries: 'T',
+  'extra-love': null,
 };
 
 /** A small solid heart: two circles over a downward triangle. */
@@ -164,34 +165,28 @@ function heart(doc: jsPDF, cx: number, cy: number, s: number) {
 }
 
 /**
- * A recipient's volunteer marks as badges, right-aligned on a baseline: crisis
- * solid black like the request's own badge, the others outlined, extra love
- * with a drawn heart (Helvetica has no heart glyph).
+ * A recipient's volunteer marks, right-aligned on a baseline: C for a coat,
+ * T for toiletries, a heart for extra love (drawn -- Helvetica has no heart
+ * glyph). Symbols only, never words: the slip goes home on the bag.
  */
 function drawMarks(doc: jsPDF, flags: RecipientFlag[], right: number, base: number) {
-  const bh = 12;
+  const size = 13;
   const gap = 4;
   let bx = right;
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6.5);
+  doc.setFontSize(9);
   for (const f of [...RECIPIENT_FLAGS].reverse()) {
     if (!flags.includes(f)) continue;
-    const label = MARK_TEXT[f];
-    const iconW = f === 'extra-love' ? 9 : 0;
-    const bw = doc.getTextWidth(label) + 10 + iconW;
-    bx -= bw;
-    const top = base - 8.5;
-    if (f === 'crisis') {
-      doc.setFillColor(0, 0, 0);
-      doc.rect(bx, top, bw, bh, 'F');
-      doc.setTextColor(255);
-    } else {
+    bx -= size;
+    const top = base - 9.5;
+    const letter = MARK_LETTER[f];
+    if (letter) {
       doc.setLineWidth(0.8);
-      doc.rect(bx, top, bw, bh);
+      doc.rect(bx, top, size, size);
+      doc.text(letter, bx + size / 2, top + size / 2 + 3.2, { align: 'center' });
+    } else {
+      heart(doc, bx + size / 2, top + size / 2 - 0.5, 3.6);
     }
-    if (iconW) heart(doc, bx + 8, top + bh / 2 - 0.5, 2.6);
-    doc.text(label, bx + 5 + iconW, base);
-    doc.setTextColor(0);
     bx -= gap;
   }
 }

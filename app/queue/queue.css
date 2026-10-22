@@ -452,7 +452,7 @@
     color: var(--ink);
     background: var(--sunk);
   }
-  .mark.m-crisis { color: var(--red); border-color: var(--red); background: var(--red-soft); }
+  .mark.m-coat { color: var(--amber); border-color: var(--amber); background: var(--amber-soft); }
   .mark.m-extra-love { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
   .mark.m-toiletries { color: var(--green); border-color: var(--green); background: var(--green-soft); }
 

@@ -48,24 +48,26 @@ export const DECLINE_REASONS = [
 ] as const;
 export type DeclineReason = (typeof DECLINE_REASONS)[number];
 
-// Volunteer-set, per recipient: marks for whoever fills the order, printed as
-// symbols on that recipient's slip. Recipient crisis says WHICH person is
-// urgent; the request's own crisis flag is still what moves it up the queue.
+// Volunteer-set, per recipient: marks for whoever fills the order -- a coat,
+// toiletries, extra love -- printed as symbols on that recipient's slip.
 // None of these is a status -- a request is still filled or not as a whole.
-export const RECIPIENT_FLAGS = ['crisis', 'extra-love', 'toiletries'] as const;
+export const RECIPIENT_FLAGS = ['coat', 'toiletries', 'extra-love'] as const;
 export type RecipientFlag = (typeof RECIPIENT_FLAGS)[number];
 
 export const RECIPIENT_FLAG_LABEL: Record<RecipientFlag, string> = {
-  crisis: 'Crisis',
-  'extra-love': 'Extra love',
+  coat: 'Coat',
   toiletries: 'Include toiletries',
+  'extra-love': 'Extra love',
 };
 
-/** On screen only: the pick sheet draws its own, since its font has no such glyphs. */
+/**
+ * On screen only. The pick sheet prints just C, T and a drawn heart: slips go
+ * home on the bags, so nothing on them should read as a warning.
+ */
 export const RECIPIENT_FLAG_SYMBOL: Record<RecipientFlag, string> = {
-  crisis: '\u26a0\ufe0f',
-  'extra-love': '\u2764\ufe0f',
+  coat: '\u{1f9e5}',
   toiletries: '\u{1f9fc}',
+  'extra-love': '\u2764\ufe0f',
 };
 
 // ---------------------------------------------------------------------------
