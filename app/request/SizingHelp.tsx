@@ -4,12 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { chartsFor, type ChartRow, type SizeField } from '@/lib/sizes';
 
-const FIELD_LABEL: Record<SizeField, string> = {
-  shirt: 'shirt',
-  pant: 'pant',
-  shoe: 'shoe',
-  diaper: 'diaper',
-};
+import { STRINGS, chartText, columnLabel, groupLabel, sizeLabel, type Lang } from './i18n';
 
 /**
  * Does a chart row's "typical age" string cover this many whole years?
@@ -44,18 +39,22 @@ export default function SizingHelp({
   field,
   gender,
   ageYears,
+  lang,
   onPick,
   onClose,
 }: {
   field: SizeField;
   gender: string;
   ageYears: number | null;
+  lang: Lang;
   onPick: (picked: PickedSize) => void;
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [h, setH] = useState('');
   const [w, setW] = useState('');
+  const t = STRINGS[lang].help;
+  const fieldName = t.field[field];
 
   useEffect(() => {
     const dlg = ref.current;
@@ -76,7 +75,9 @@ export default function SizingHelp({
     return false;
   };
 
-  const hits = sections.flatMap((s) => s.rows.filter(matched).map((r) => r.size));
+  const hits = sections.flatMap((s) =>
+    s.rows.filter(matched).map((r) => sizeLabel(r.size, lang)),
+  );
 
   let out: React.ReactNode;
   let outClass = 'est-out empty';
@@ -84,48 +85,48 @@ export default function SizingHelp({
     outClass = 'est-out';
     out = (
       <>
-        {`Closest ${FIELD_LABEL[field]} size: `}
-        <strong>{hits.slice(0, 3).join(' or ')}</strong>
+        {t.closest(fieldName)}
+        <strong>{hits.slice(0, 3).join(t.or)}</strong>
       </>
     );
   } else if (height != null || weight != null) {
-    out = 'No typical size matches those numbers exactly — scan the charts below for the closest row.';
+    out = t.noMatch;
   } else if (ageYears != null) {
-    out = `Rows matching age ${ageYears} are highlighted below. Add height or weight to narrow it down.`;
+    out = t.ageRows(ageYears);
   } else {
-    out = 'Enter a height or weight, or fill in the age on the form, and we’ll highlight the closest sizes.';
+    out = t.prompt;
   }
 
   return (
-    <dialog ref={ref} onClose={onClose} onCancel={onClose}>
+    <dialog ref={ref} lang={lang} onClose={onClose} onCancel={onClose}>
       <div className="dlg-head">
-        <h2>Typical {FIELD_LABEL[field]} sizes</h2>
+        <h2>{t.title(fieldName)}</h2>
         <button type="button" className="link-btn" onClick={() => ref.current?.close()}>
-          Close
+          {t.close}
         </button>
       </div>
       <div className="dlg-body">
         <div className="estimator">
-          <h3>Find a size</h3>
+          <h3>{t.find}</h3>
           <div className="est-inputs">
             {field !== 'diaper' ? (
               <div className="field">
-                <label htmlFor="est-h">Height (in)</label>
+                <label htmlFor="est-h">{t.height}</label>
                 <input
                   id="est-h"
                   type="number"
-                  placeholder="e.g. 48"
+                  placeholder={`${t.eg} 48`}
                   value={h}
                   onChange={(e) => setH(e.target.value)}
                 />
               </div>
             ) : null}
             <div className="field">
-              <label htmlFor="est-w">Weight (lb)</label>
+              <label htmlFor="est-w">{t.weight}</label>
               <input
                 id="est-w"
                 type="number"
-                placeholder="e.g. 55"
+                placeholder={`${t.eg} 55`}
                 value={w}
                 onChange={(e) => setW(e.target.value)}
               />
@@ -134,20 +135,17 @@ export default function SizingHelp({
           <div className={outClass}>{out}</div>
         </div>
 
-        <p className="caveat">
-          These are typical sizes and vary by brand. If you can read the tag in something that
-          already fits, use that instead.
-        </p>
+        <p className="caveat">{t.caveat}</p>
 
         {sections.map((sec) => (
           <div key={sec.cap}>
-            <div className="grp-cap">{sec.cap}</div>
+            <div className="grp-cap">{groupLabel(sec.cap, lang)}</div>
             <div className="tbl-scroll">
               <table>
                 <thead>
                   <tr>
                     {sec.cols.map((c, i) => (
-                      <th key={i}>{c}</th>
+                      <th key={i}>{columnLabel(c, lang)}</th>
                     ))}
                     <th />
                   </tr>
@@ -155,10 +153,10 @@ export default function SizingHelp({
                 <tbody>
                   {sec.rows.map((row) => (
                     <tr key={row.size} className={matched(row) ? 'match' : undefined}>
-                      <td>{row.size}</td>
-                      <td>{row.age}</td>
-                      <td>{row.h}</td>
-                      {sec.cols.length === 4 ? <td>{row.w}</td> : null}
+                      <td>{sizeLabel(row.size, lang)}</td>
+                      <td>{chartText(row.age, lang)}</td>
+                      <td>{chartText(row.h, lang)}</td>
+                      {sec.cols.length === 4 ? <td>{chartText(row.w, lang)}</td> : null}
                       <td>
                         <button
                           type="button"
@@ -168,7 +166,7 @@ export default function SizingHelp({
                             ref.current?.close();
                           }}
                         >
-                          Use this
+                          {t.use}
                         </button>
                       </td>
                     </tr>

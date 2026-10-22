@@ -154,6 +154,22 @@
 
   .info-btn:hover { background: var(--accent); color: var(--accent-ink); }
 
+  /* The language switch: named in the language it switches to, top right. */
+  .lang-btn {
+    align-self: flex-end;
+    font-family: var(--display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    padding: 7px 16px;
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  .lang-btn:hover { background: var(--accent); color: var(--accent-ink); }
+
   .cross-note {
     font-size: 0.82rem;
     color: var(--flag);

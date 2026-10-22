@@ -20,7 +20,7 @@ import {
 
 export type SubmitResult =
   | { number: string; recipientCount: number }
-  | { error: string };
+  | { error: string; code: 'invalid' | 'save' };
 
 /**
  * A group+size pair is only valid if that list really offers that size. The
@@ -95,7 +95,10 @@ export type Submission = z.infer<typeof submissionSchema>;
 export async function submitRequest(input: unknown): Promise<SubmitResult> {
   const parsed = submissionSchema.safeParse(input);
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Some answers were not accepted.' };
+    return {
+      error: parsed.error.issues[0]?.message ?? 'Some answers were not accepted.',
+      code: 'invalid',
+    };
   }
   const data = parsed.data;
 
@@ -171,6 +174,9 @@ export async function submitRequest(input: unknown): Promise<SubmitResult> {
     return { number: requestNumber(created), recipientCount: data.recipients.length };
   } catch (e) {
     console.error('submitRequest failed', e);
-    return { error: 'The request could not be saved. Please try again, or call the closet.' };
+    return {
+      error: 'The request could not be saved. Please try again, or call the closet.',
+      code: 'save',
+    };
   }
 }

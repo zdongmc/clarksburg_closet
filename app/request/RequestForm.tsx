@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import SizingHelp, { type PickedSize } from './SizingHelp';
 import { submitRequest } from './actions';
+import { STRINGS, groupLabel, sizeLabel, type Lang } from './i18n';
 import {
   ADULT_GROUPS,
   DIAPERS,
@@ -49,9 +50,11 @@ type Draft = {
 
 let nextKey = 1;
 
-function blankRecipient(): Draft {
+// The first recipient's key is fixed: the counter lives on across server
+// renders, and its ids must match between the server's HTML and hydration.
+function blankRecipient(key = nextKey++): Draft {
   return {
-    key: nextKey++,
+    key,
     name: '',
     gender: '',
     ageValue: '',
@@ -89,6 +92,7 @@ function SizeSelect({
   onChange,
   onHelp,
   note,
+  lang,
 }: {
   id: string;
   label: string;
@@ -99,7 +103,9 @@ function SizeSelect({
   onChange: (v: string) => void;
   onHelp: () => void;
   note: string | null;
+  lang: Lang;
 }) {
+  const t = STRINGS[lang];
   return (
     <div className="field sizefield">
       <div className="lbl-row">
@@ -107,7 +113,7 @@ function SizeSelect({
           {label} <span className="req">*</span>
         </label>
         <button type="button" className="info-btn" onClick={onHelp}>
-          ⓘ Sizing help
+          {t.sizingHelp}
         </button>
       </div>
       <select
@@ -117,12 +123,12 @@ function SizeSelect({
         onChange={(e) => onChange(e.target.value)}
       >
         <option value="">{placeholder}</option>
-        <option value={NOT_NEEDED}>Not needed</option>
+        <option value={NOT_NEEDED}>{t.notNeeded}</option>
         {groups.map((g) => (
-          <optgroup key={g.label} label={g.label}>
+          <optgroup key={g.label} label={groupLabel(g.label, lang)}>
             {g.opts.map((o) => (
               <option key={o} value={encode(g.label, o)}>
-                {o}
+                {sizeLabel(o, lang)}
               </option>
             ))}
           </optgroup>
@@ -133,7 +139,24 @@ function SizeSelect({
   );
 }
 
-export default function RequestForm({ agencies }: { agencies: string[] }) {
+export default function RequestForm({
+  agencies,
+  initialLang,
+}: {
+  agencies: string[];
+  initialLang: Lang;
+}) {
+  // Switching language keeps everything typed so far: only the words change,
+  // never a stored value. The URL follows so the Spanish form can be shared.
+  const [lang, setLang] = useState<Lang>(initialLang);
+  const t = STRINGS[lang];
+  useEffect(() => {
+    document.title = t.docTitle;
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.history.replaceState(null, '', url);
+  }, [lang, t.docTitle]);
+
   const today = useMemo(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -145,7 +168,7 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
   const [email, setEmail] = useState('');
   const [agency, setAgency] = useState('');
   const [prayer, setPrayer] = useState('');
-  const [people, setPeople] = useState<Draft[]>(() => [blankRecipient()]);
+  const [people, setPeople] = useState<Draft[]>(() => [blankRecipient(0)]);
 
   const [problems, setProblems] = useState<string[]>([]);
   const [badFields, setBadFields] = useState<Set<string>>(new Set());
@@ -154,6 +177,12 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
   const [done, setDone] = useState<{ number: string; recipientCount: number } | null>(null);
 
   const [help, setHelp] = useState<{ field: SizeField; index: number } | null>(null);
+
+  // A list of missing answers already on screen follows the switch too.
+  useEffect(() => {
+    if (problems.length) setProblems(validate().problems);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
 
   const bad = (k: string) => badFields.has(k);
   const clearBad = (k: string) =>
@@ -233,54 +262,51 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
 
     if (!name.trim()) {
       flags.add('req-name');
-      out.push('Requester: your name');
+      out.push(t.missingName);
     }
     if (!phone.trim()) {
       flags.add('req-phone');
-      out.push('Requester: your phone number');
+      out.push(t.missingPhone);
     }
     if (!email.trim()) {
       flags.add('req-email');
-      out.push('Requester: your email address');
+      out.push(t.missingEmail);
     }
 
     people.forEach((p, i) => {
       const missing: string[] = [];
       if (!p.name.trim()) {
         flags.add(`name-${i}`);
-        missing.push('name');
+        missing.push(t.missing.name);
       }
       if (!p.gender) {
         flags.add(`gender-${i}`);
-        missing.push('gender');
+        missing.push(t.missing.gender);
       }
       if (!p.ageValue) {
         flags.add(`age-${i}`);
-        missing.push('age');
+        missing.push(t.missing.age);
       }
       if (!p.shirt) {
         flags.add(`shirt-${i}`);
-        missing.push('shirt size');
+        missing.push(t.missing.shirt);
       }
       if (!p.pant) {
         flags.add(`pant-${i}`);
-        missing.push('pant size');
+        missing.push(t.missing.pant);
       } else if (decode(p.pant).group === "Men's waist" && !p.inseam) {
         flags.add(`inseam-${i}`);
-        missing.push('pant inseam');
+        missing.push(t.missing.inseam);
       }
       if (!p.shoes.length) {
         flags.add(`shoe-${i}`);
-        missing.push('shoe size');
+        missing.push(t.missing.shoe);
       }
       if (p.needsDiaper && !p.diaper) {
         flags.add(`diaper-${i}`);
-        missing.push('diaper size');
+        missing.push(t.missing.diaper);
       }
-      if (missing.length) {
-        const who = p.name.trim() ? ` (${p.name.trim()})` : '';
-        out.push(`Recipient ${i + 1}${who}: ${missing.join(', ')}`);
-      }
+      if (missing.length) out.push(t.recipientMissing(i + 1, p.name.trim(), missing));
     });
 
     return { problems: out, bad: flags };
@@ -326,10 +352,10 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
           };
         }),
       });
-      if ('error' in result) setServerError(result.error);
+      if ('error' in result) setServerError(t.serverError?.[result.code] ?? result.error);
       else setDone(result);
     } catch {
-      setServerError('Something went wrong sending the request. Please try again.');
+      setServerError(t.networkError);
     } finally {
       setSending(false);
     }
@@ -337,31 +363,24 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
 
   if (done) {
     return (
-      <div className="wrap">
+      <div className="wrap" lang={lang}>
         <header className="masthead">
           <div className="brand-lockup">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="logo" src="/logo.png" alt="Clarksburg Closet" width={72} height={72} />
             <div className="brand-text">
-              <div className="eyebrow">Request received</div>
-              <h1>Thank you</h1>
+              <div className="eyebrow">{t.doneEyebrow}</div>
+              <h1>{t.doneTitle}</h1>
             </div>
           </div>
         </header>
         <section className="panel">
-          <h2>Your request is with us</h2>
-          <p className="lede">
-            It is request <strong>#{done.number}</strong> for {done.recipientCount}{' '}
-            {done.recipientCount === 1 ? 'person' : 'people'}. Please keep that number — it is how
-            we find your request if you call.
-          </p>
-          <p className="lede">
-            A volunteer will go through it and contact you at {email} or {phone}. There is no fixed
-            turnaround: we work the queue as clothing comes in.
-          </p>
+          <h2>{t.doneHeading}</h2>
+          <p className="lede">{t.doneNumber(done.number, done.recipientCount)}</p>
+          <p className="lede">{t.doneContact(email, phone)}</p>
           <div className="actions">
-            <a className="btn" href="/request">
-              Submit another request
+            <a className="btn" href={`/request?lang=${lang}`}>
+              {t.another}
             </a>
           </div>
         </section>
@@ -370,29 +389,33 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
   }
 
   return (
-    <div className="wrap">
+    <div className="wrap" lang={lang}>
       <header className="masthead">
+        <button
+          type="button"
+          className="lang-btn"
+          lang={t.switchLang}
+          aria-label={t.switchAria}
+          onClick={() => setLang(t.switchLang)}
+        >
+          {t.switchTo}
+        </button>
         <div className="brand-lockup">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="logo" src="/logo.png" alt="Clarksburg Closet" width={72} height={72} />
           <div className="brand-text">
             <div className="eyebrow">23810 Stringtown Road · Clarksburg, MD</div>
-            <h1>Clothing Request Form</h1>
+            <h1>{t.title}</h1>
           </div>
         </div>
-        <p className="lede">
-          One request can cover up to 10 people, whether you&rsquo;re requesting for your own
-          household or on someone else&rsquo;s behalf. Each household may request once per season.
-          Every size has a <em>Sizing help</em> button with charts by age, height and weight —
-          please use it rather than guessing, since we can&rsquo;t guess sizes for you.
-        </p>
+        <p className="lede">{t.lede}</p>
       </header>
 
       <section className="panel">
-        <h2>Who is making this request</h2>
+        <h2>{t.whoHeading}</h2>
         <div className="row">
           <div className="field">
-            <label htmlFor="req-date">Date of request</label>
+            <label htmlFor="req-date">{t.date}</label>
             <input
               type="date"
               id="req-date"
@@ -402,12 +425,12 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
           </div>
           <div className="field">
             <label htmlFor="req-name">
-              Your name <span className="req">*</span>
+              {t.yourName} <span className="req">*</span>
             </label>
             <input
               type="text"
               id="req-name"
-              placeholder="First and last name"
+              placeholder={t.namePlaceholder}
               className={bad('req-name') ? 'invalid' : undefined}
               value={name}
               onChange={(e) => {
@@ -420,7 +443,7 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
         <div className="row">
           <div className="field">
             <label htmlFor="req-phone">
-              Cell phone number <span className="req">*</span>
+              {t.phone} <span className="req">*</span>
             </label>
             <input
               type="tel"
@@ -436,12 +459,12 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
           </div>
           <div className="field">
             <label htmlFor="req-email">
-              Email address <span className="req">*</span>
+              {t.email} <span className="req">*</span>
             </label>
             <input
               type="email"
               id="req-email"
-              placeholder="you@example.org"
+              placeholder={t.emailPlaceholder}
               className={bad('req-email') ? 'invalid' : undefined}
               value={email}
               onChange={(e) => {
@@ -449,17 +472,17 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
                 clearBad('req-email');
               }}
             />
-            <div className="hint">We send your confirmation here.</div>
+            <div className="hint">{t.emailHint}</div>
           </div>
         </div>
         <div className="row">
           <div className="field">
-            <label htmlFor="req-agency">Organization or agency</label>
+            <label htmlFor="req-agency">{t.agency}</label>
             <input
               type="text"
               id="req-agency"
               list="agency-list"
-              placeholder="Start typing…"
+              placeholder={t.agencyPlaceholder}
               value={agency}
               onChange={(e) => setAgency(e.target.value)}
             />
@@ -470,9 +493,7 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
                 <option key={a} value={a} />
               ))}
             </datalist>
-            <div className="hint">
-              Leave blank if you are requesting for yourself or your own household.
-            </div>
+            <div className="hint">{t.agencyHint}</div>
           </div>
         </div>
       </section>
@@ -486,15 +507,13 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
         const isMensPant = pantSel.group === "Men's waist";
 
         const adultNote = (group: string) =>
-          ADULT_GROUPS.includes(group) && years != null && years < 13
-            ? `That’s an adult size for a ${years}-year-old. If it’s right, leave it — knowing helps us pick the right style.`
-            : null;
+          ADULT_GROUPS.includes(group) && years != null && years < 13 ? t.adultNote(years) : null;
 
         return (
           <section className="recip" key={p.key}>
             <div className="recip-head">
               <h3>
-                Recipient <span className="recip-num">{i + 1}</span>
+                {t.recipient} <span className="recip-num">{i + 1}</span>
               </h3>
               {people.length > 1 ? (
                 <button
@@ -502,7 +521,7 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
                   className="link-btn"
                   onClick={() => setPeople((prev) => prev.filter((_, j) => j !== i))}
                 >
-                  Remove
+                  {t.remove}
                 </button>
               ) : null}
             </div>
@@ -510,12 +529,12 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
             <div className="row">
               <div className="field">
                 <label htmlFor={`r${p.key}-name`}>
-                  Name <span className="req">*</span>
+                  {t.name} <span className="req">*</span>
                 </label>
                 <input
                   type="text"
                   id={`r${p.key}-name`}
-                  placeholder="First and last name"
+                  placeholder={t.namePlaceholder}
                   className={bad(`name-${i}`) ? 'invalid' : undefined}
                   value={p.name}
                   onChange={(e) => {
@@ -527,7 +546,7 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
 
               <div className="field">
                 <label htmlFor={`r${p.key}-gender`}>
-                  Gender <span className="req">*</span>
+                  {t.gender} <span className="req">*</span>
                 </label>
                 <select
                   id={`r${p.key}-gender`}
@@ -535,15 +554,15 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
                   value={p.gender}
                   onChange={(e) => setGender(i, e.target.value)}
                 >
-                  <option value="">Select…</option>
-                  <option value="female">Female</option>
-                  <option value="male">Male</option>
+                  <option value="">{t.select}</option>
+                  <option value="female">{t.female}</option>
+                  <option value="male">{t.male}</option>
                 </select>
               </div>
 
               <div className="field">
                 <label htmlFor={`r${p.key}-age`}>
-                  Age <span className="req">*</span>
+                  {t.age} <span className="req">*</span>
                 </label>
                 <div className="age-row">
                   <input
@@ -560,25 +579,26 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
                   />
                   <select
                     id={`r${p.key}-ageunit`}
-                    aria-label="Age unit"
+                    aria-label={t.ageUnit}
                     value={p.ageUnit}
                     onChange={(e) => update(i, { ageUnit: e.target.value as 'years' | 'months' })}
                   >
-                    <option value="years">years old</option>
-                    <option value="months">months old</option>
+                    <option value="years">{t.yearsOld}</option>
+                    <option value="months">{t.monthsOld}</option>
                   </select>
                 </div>
-                <div className="hint">Fill this in first — it drives the sizing help.</div>
+                <div className="hint">{t.ageHint}</div>
               </div>
             </div>
 
             <div className="row">
               <SizeSelect
                 id={`r${p.key}-shirt`}
-                label="Shirt size"
+                label={t.shirt}
                 value={p.shirt}
                 groups={shirtG}
-                placeholder="Select a shirt size…"
+                placeholder={t.shirtPlaceholder}
+                lang={lang}
                 invalid={bad(`shirt-${i}`)}
                 onChange={(v) => {
                   update(i, { shirt: v });
@@ -589,10 +609,11 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
               />
               <SizeSelect
                 id={`r${p.key}-pant`}
-                label="Pant size"
+                label={t.pant}
                 value={p.pant}
                 groups={pantG}
-                placeholder="Select a pant size…"
+                placeholder={t.pantPlaceholder}
+                lang={lang}
                 invalid={bad(`pant-${i}`)}
                 onChange={(v) => {
                   update(i, { pant: v, inseam: decode(v).group === "Men's waist" ? p.inseam : '' });
@@ -608,7 +629,7 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
               <div className="row">
                 <div className="field">
                   <label htmlFor={`r${p.key}-inseam`}>
-                    Pant inseam <span className="req">*</span>
+                    {t.inseam} <span className="req">*</span>
                   </label>
                   <select
                     id={`r${p.key}-inseam`}
@@ -619,14 +640,14 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
                       clearBad(`inseam-${i}`);
                     }}
                   >
-                    <option value="">Select…</option>
+                    <option value="">{t.select}</option>
                     {MENS_INSEAM.map((v) => (
                       <option key={v} value={v}>
                         {v}&quot;
                       </option>
                     ))}
                   </select>
-                  <div className="hint">Men&rsquo;s pants are sized waist × inseam.</div>
+                  <div className="hint">{t.inseamHint}</div>
                 </div>
               </div>
             ) : null}
@@ -636,22 +657,22 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
               <div className="field sizefield">
                 <div className="lbl-row">
                   <label htmlFor={`r${p.key}-shoe`}>
-                    Shoe size <span className="req">*</span>
+                    {t.shoe} <span className="req">*</span>
                   </label>
                   <button
                     type="button"
                     className="info-btn"
                     onClick={() => setHelp({ field: 'shoe', index: i })}
                   >
-                    ⓘ Sizing help
+                    {t.sizingHelp}
                   </button>
                 </div>
                 <details className={`picker${bad(`shoe-${i}`) ? ' invalid' : ''}`}>
                   <summary id={`r${p.key}-shoe`}>
                     {p.shoes.length === 0 ? (
-                      <span className="summary-empty">Choose one or more sizes…</span>
+                      <span className="summary-empty">{t.shoePlaceholder}</span>
                     ) : (
-                      <span>{p.shoes[0] === NOT_NEEDED ? 'Not needed' : p.shoes.join(', ')}</span>
+                      <span>{p.shoes[0] === NOT_NEEDED ? t.notNeeded : p.shoes.join(', ')}</span>
                     )}
                   </summary>
                   <div className="picker-body">
@@ -662,12 +683,12 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
                         aria-pressed={p.shoes[0] === NOT_NEEDED}
                         onClick={() => toggleShoeNone(i)}
                       >
-                        Not needed
+                        {t.notNeeded}
                       </button>
                     </div>
                     {shoeGroups(p.gender).map((g) => (
                       <div key={g.label}>
-                        <div className="chip-cap">{g.label}</div>
+                        <div className="chip-cap">{groupLabel(g.label, lang)}</div>
                         <div className="chips">
                           {g.opts.map((o) => (
                             <button
@@ -685,7 +706,7 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
                     ))}
                   </div>
                 </details>
-                <div className="hint">Tick every size that would fit — for example 5 and 5½.</div>
+                <div className="hint">{t.shoeHint}</div>
               </div>
             </div>
 
@@ -700,21 +721,21 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
                     update(i, { needsDiaper: e.target.checked, diaper: e.target.checked ? p.diaper : '' })
                   }
                 />
-                <span>Also needs diapers or pull-ups</span>
+                <span>{t.needsDiaper}</span>
               </label>
 
               {p.needsDiaper ? (
                 <div className="field sizefield">
                   <div className="lbl-row">
                     <label htmlFor={`r${p.key}-diaper`}>
-                      Diaper size <span className="req">*</span>
+                      {t.diaper} <span className="req">*</span>
                     </label>
                     <button
                       type="button"
                       className="info-btn"
                       onClick={() => setHelp({ field: 'diaper', index: i })}
                     >
-                      ⓘ Sizing help
+                      {t.sizingHelp}
                     </button>
                   </div>
                   <select
@@ -726,11 +747,11 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
                       clearBad(`diaper-${i}`);
                     }}
                   >
-                    <option value="">Select a diaper size…</option>
-                    <optgroup label="Diapers and pull-ups">
+                    <option value="">{t.diaperPlaceholder}</option>
+                    <optgroup label={groupLabel('Diapers and pull-ups', lang)}>
                       {DIAPERS.map((d) => (
                         <option key={d.size} value={d.size}>
-                          {d.size}
+                          {sizeLabel(d.size, lang)}
                         </option>
                       ))}
                     </optgroup>
@@ -740,10 +761,10 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
             </div>
 
             <div className="field">
-              <label htmlFor={`r${p.key}-notes`}>Items needed most / additional info</label>
+              <label htmlFor={`r${p.key}-notes`}>{t.items}</label>
               <textarea
                 id={`r${p.key}-notes`}
-                placeholder="Winter coat, school shoes, anything else we should know…"
+                placeholder={t.itemsPlaceholder}
                 value={p.itemsNeeded}
                 onChange={(e) => update(i, { itemsNeeded: e.target.value })}
               />
@@ -759,20 +780,18 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
           disabled={people.length >= MAX_RECIPIENTS}
           onClick={() => setPeople((prev) => [...prev, blankRecipient()])}
         >
-          + Add another recipient
+          {t.addRecipient}
         </button>
-        <span className="hint">
-          {people.length} of {MAX_RECIPIENTS} recipients on this request
-        </span>
+        <span className="hint">{t.countOf(people.length, MAX_RECIPIENTS)}</span>
       </div>
 
       <section className="panel">
-        <h2>Prayer request</h2>
+        <h2>{t.prayerHeading}</h2>
         <div className="field">
-          <label htmlFor="prayer">Anything you&rsquo;d like us to pray for</label>
+          <label htmlFor="prayer">{t.prayerLabel}</label>
           <textarea
             id="prayer"
-            placeholder="Optional"
+            placeholder={t.optional}
             value={prayer}
             onChange={(e) => setPrayer(e.target.value)}
           />
@@ -782,7 +801,7 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
       <div id="submit-errors">
         {problems.length ? (
           <div className="summary-err">
-            <strong>Still needed before this can be sent</strong>
+            <strong>{t.stillNeeded}</strong>
             <ul>
               {problems.map((p) => (
                 <li key={p}>{p}</li>
@@ -792,7 +811,7 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
         ) : null}
         {serverError ? (
           <div className="summary-err">
-            <strong>Could not send</strong>
+            <strong>{t.couldNotSend}</strong>
             <ul>
               <li>{serverError}</li>
             </ul>
@@ -802,11 +821,9 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
 
       <div className="actions">
         <button type="button" className="btn" disabled={sending} onClick={onSubmit}>
-          {sending ? 'Sending…' : 'Submit request'}
+          {sending ? t.sending : t.submit}
         </button>
-        <span className="hint">
-          Every size must be chosen, or marked <em>Not needed</em>.
-        </span>
+        <span className="hint">{t.submitHint}</span>
       </div>
 
       {help ? (
@@ -814,6 +831,7 @@ export default function RequestForm({ agencies }: { agencies: string[] }) {
           field={help.field}
           gender={people[help.index]?.gender ?? ''}
           ageYears={people[help.index] ? ageYearsOf(people[help.index]) : null}
+          lang={lang}
           onPick={applyPick}
           onClose={() => setHelp(null)}
         />
