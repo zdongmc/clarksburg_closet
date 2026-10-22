@@ -18,6 +18,15 @@ import {
   shirtGroups,
 } from '@/lib/sizes';
 
+import { LANGS } from './i18n';
+
+/**
+ * Written into the volunteer notes of a request made on the Spanish form, so
+ * the queue shows (and its search finds) a household that may want Spanish.
+ * Volunteers can edit or clear it like any note.
+ */
+const SPANISH_NOTE = 'Form filled out in Spanish.';
+
 export type SubmitResult =
   | { number: string; recipientCount: number }
   | { error: string; code: 'invalid' | 'save' };
@@ -86,6 +95,7 @@ const submissionSchema = z.object({
   email: z.string().trim().email().max(200),
   agency: z.string().trim().max(200),
   prayer: z.string().max(4000),
+  language: z.enum(LANGS).default('en'),
   // Up to 10 per submission, as on the paper form.
   recipients: z.array(recipientSchema).min(1).max(10),
 });
@@ -148,6 +158,8 @@ export async function submitRequest(input: unknown): Promise<SubmitResult> {
         requesterId,
         receivedOn: data.receivedOn,
         prayer: data.prayer,
+        // No notesUpdatedAt: no volunteer wrote this.
+        notes: data.language === 'es' ? SPANISH_NOTE : '',
       })
       .returning({ id: requests.id, seq: requests.seq, receivedOn: requests.receivedOn });
 

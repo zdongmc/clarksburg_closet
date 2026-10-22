@@ -81,8 +81,7 @@ Still open, in rough priority order:
 1. **Change the volunteer passcode before real intake.** It is still the street number. Set a new `VOLUNTEER_PASSCODE` in Vercel and redeploy; no code change.
 2. **Email confirmations — waiting on the user.** The form and thank-you screen promise an email that nothing sends. The blocker is a sending domain: mail cannot come from `vercel.app`, so it needs SPF/DKIM records on **clarksburgcloset.org**, and the user is finding out who manages that DNS. Proposed plan, not yet approved: **Resend** from the Vercel Marketplace (`resend/resend-email`), sending from something like `requests@clarksburgcloset.org` with replies to `info@`, called from `submitRequest` in `app/request/actions.ts` after the insert — a failed send must never fail the submission. Open decisions: the addresses; whether the email repeats sizes (the prayer request stays out); and two optional extras on the same setup, a new-request alert to volunteers and a filled/declined email to the requester. If real intake starts first, soften the form's wording to "we'll contact you by email or phone".
 3. **Volunteer identity** — nothing records *who* did anything: who filled a request, or who wrote a note. The shared passcode was chosen knowing this. One decision covers both; `lib/auth.ts` is where it lands. Cheap to capture at the click, impossible to reconstruct later.
-4. **Record the request's language?** The Spanish form (2026-10-22) saves nothing about which language was used, so a volunteer only learns a household prefers Spanish from any free text they wrote (stored as typed, never translated); a request with only names and sizes gives no sign. A `language` column on `requests`, shown in the queue, would fix that — a schema push, so not done without asking.
-5. The public website still advertises a 4-week turnaround; the new form does not.
+4. The public website still advertises a 4-week turnaround; the new form does not.
 
 ## About Clarksburg Closet
 
@@ -217,6 +216,7 @@ Spanish-speaking households are a significant part of the population served, so 
 - **Every word lives in `app/request/i18n.tsx`**, one dictionary per language; the Spanish one is typed against the English, so a missing string is a type error.
 - **Only display is translated, never a stored value.** Group labels (`"Girls'"`), sizes (`Newborn`, `28" waist`) and chart cells are translated at render time by `groupLabel` / `sizeLabel` / `chartText`; the option values, the server's checks and what the queue prints are unchanged, so a Spanish request is identical in the database. The sizing-help estimator still parses the English chart text.
 - Standard US size codes (XS/S/M/L, 2T, 4C, 1Y) stay untranslated, since those are the codes printed on garment labels.
+- **A request made on the Spanish form starts with the volunteer note "Form filled out in Spanish."** (`submitRequest`, user's choice 2026-10-22), so the queue shows it and its search finds it. It is a note rather than a column — no schema change, and volunteers can edit or clear it. `notesUpdatedAt` stays null, since no volunteer wrote it. Free text is stored as typed, never translated.
 - Spanish uses **usted** throughout. A recipient is **Persona**; gender is **Sexo** (Femenino/Masculino).
 - The QR code (`public/request-qr.png`) points at the language-neutral `/request`. **One code, deliberately** — the user ruled out a separate Spanish QR (2026-10-22) as confusing; the toggle and browser detection cover it.
 

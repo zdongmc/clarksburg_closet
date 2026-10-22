@@ -331,6 +331,7 @@ export default function RequestForm({
         email: email.trim(),
         agency: agency.trim(),
         prayer: prayer.trim(),
+        language: lang,
         recipients: people.map((p) => {
           const shirt = decode(p.shirt);
           const pant = decode(p.pant);
