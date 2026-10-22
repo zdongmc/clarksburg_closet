@@ -66,7 +66,7 @@ export const RECIPIENT_FLAG_LABEL: Record<RecipientFlag, string> = {
  */
 export const RECIPIENT_FLAG_SYMBOL: Record<RecipientFlag, string> = {
   coat: '\u{1f9e5}',
-  toiletries: '\u{1f9fc}',
+  toiletries: '\u{1faa5}',
   'extra-love': '\u2764\ufe0f',
 };
 
