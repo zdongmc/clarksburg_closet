@@ -330,10 +330,24 @@ export default function Queue({ initial }: { initial: QueueRequest[] }) {
                       checked={r.crisis}
                       onChange={(e) => {
                         const on = e.target.checked;
-                        apply(r.id, { crisis: on });
+                        // Crisis also ticks extra love for everyone on the
+                        // request; each can still be unticked by hand.
+                        apply(r.id, {
+                          crisis: on,
+                          ...(on
+                            ? {
+                                people: r.people.map((p) => ({
+                                  ...p,
+                                  flags: RECIPIENT_FLAGS.filter(
+                                    (f) => f === 'extra-love' || p.flags.includes(f),
+                                  ),
+                                })),
+                              }
+                            : {}),
+                        });
                         after(setCrisis(r.id, on), {
                           msg: on
-                            ? `${r.name}’s request marked crisis — moved to the top of the queue.`
+                            ? `${r.name}’s request marked crisis — moved to the top of the queue, with extra love for everyone on it.`
                             : `Crisis flag removed from ${r.name}’s request.`,
                         });
                       }}

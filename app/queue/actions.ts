@@ -1,6 +1,6 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
@@ -44,9 +44,25 @@ async function patch(requestId: string, values: Partial<typeof requests.$inferIn
  * the queue and prints on the sheet, and it lives on the request rather than
  * the requester -- an agency that sends one urgent case is not permanently
  * urgent. Volunteers set it; it is never visible on the request form.
+ *
+ * Marking crisis also gives every recipient on the request extra love. That
+ * is a starting point, not a rule: each box can be unticked afterwards, and
+ * clearing crisis leaves them as they are, since some may be deliberate.
  */
 export async function setCrisis(requestId: string, on: boolean) {
   await patch(requestId, { crisis: on });
+  if (on) {
+    // 'extra-love' is last in RECIPIENT_FLAGS, so appending keeps list order.
+    await db
+      .update(recipients)
+      .set({ flags: sql`array_append(${recipients.flags}, 'extra-love')` })
+      .where(
+        and(
+          eq(recipients.requestId, id.parse(requestId)),
+          sql`NOT ('extra-love' = ANY(${recipients.flags}))`,
+        ),
+      );
+  }
 }
 
 /** Called once the PDF is actually in the volunteer's hands, not before. */
