@@ -203,7 +203,7 @@ Notes are searchable from the queue. The field stores when it was last updated b
 
 Volunteer-set, from the queue: **Not started → Printed → Filled**, plus **Declined** (with a required reason) and **Crisis** (a priority flag, not a status).
 
-- **Crisis** is set by volunteers, never by the requester, and never visible on the request form. It lives on the request, not the requester — an agency that sends one urgent case is not permanently urgent. It moves the request to the top of the queue and prints on the sheet.
+- **Crisis** is set by volunteers, never by the requester, and never visible on the request form. It lives on the request, not the requester — an agency that sends one urgent case is not permanently urgent. It moves the request to the top of the queue and prints on the sheet's header (not the slips).
 - **Recipient marks** (added 2026-10-22) — three checkboxes per recipient, set by volunteers in the queue's expanded view: **Coat**, **Include toiletries**, **Extra love**. Stored as `recipients.flags text[]` (`RECIPIENT_FLAGS` in `db/schema.ts`: `coat`, `toiletries`, `extra-love`). They show as chips under the recipient's name in the queue (🧥 🪥 ❤️) and print on **that recipient's slip**, beside the age, as **C**, **T** and a drawn heart (Helvetica has no heart glyph). **Slips are attached to the bags and go home with the families**, so they carry symbols only — no words, and nothing that reads as a warning; the user removed a ⚠️ for exactly that reason. A mark changed after printing does not reach the sheet already printed, so the toast says to print again.
 - **Declining requires a reason** — the requester will be told, and "why was I turned down?" needs an answer months later. Reasons: already received this season, duplicate, outside the area served, could not reach the requester, items not available, other.
 - **Partial fulfilment does not exist — confirmed.** Orders are never filled partially, so status lives on the **request**, not on each recipient. A request is filled or it is not. Do not add a per-recipient status column.
@@ -246,7 +246,7 @@ Layout, verified across recipient counts (1–4 → one page, 5–10 → two):
 - **Every page after**: 3 rows × 2 columns = **6 slips**
 - Since the form caps at 10 recipients, a sheet is never more than two pages
 
-Each slip is self-contained and traceable — requester name, agency, request number, "3 of 5" — so a slip separated from the others on the sorting table still says who it belongs to. If the request is flagged crisis, a black **CRISIS** badge prints in the header *and* on every slip, and the filename gets a `-CRISIS` suffix.
+Each slip is self-contained and traceable — requester name, agency, request number, "3 of 5" — so a slip separated from the others on the sorting table still says who it belongs to. If the request is flagged crisis, a black **CRISIS** badge prints in the **header only**, and the filename gets a `-CRISIS` suffix. **Never on the slips** (user, 2026-10-22): slips are attached to the bags and go home with the families, while the header stays at the closet.
 
 Print output is **black and white by design** to save ink: no solid fills anywhere. The only colour is the logo.
 

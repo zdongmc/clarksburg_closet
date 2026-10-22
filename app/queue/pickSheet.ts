@@ -227,19 +227,8 @@ function drawSlip(
   doc.setFontSize(6.5);
   doc.text('#' + r.number, x + w - pad, cy, { align: 'right' });
 
-  if (r.crisis) {
-    cy += 12;
-    const bw = 44;
-    const bh = 12;
-    doc.setFillColor(0, 0, 0);
-    doc.rect(x + pad, cy - 9, bw, bh, 'F');
-    doc.setTextColor(255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.text('CRISIS', x + pad + bw / 2, cy - 0.5, { align: 'center' });
-    doc.setTextColor(0);
-    cy -= 2;
-  }
+  // No CRISIS badge here, deliberately: slips are attached to the bags and go
+  // home with the families. Crisis prints in the header, which stays behind.
 
   cy += 8;
   doc.setLineWidth(1.2);
